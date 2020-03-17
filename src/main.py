@@ -34,7 +34,7 @@ def print_help(ExitCode):
     """
     sys.stderr.write("python3 ./src/main.py \n"
                      "   To Run: \n"
-                     "   source ~/.local/virtualenvs/python3.6/bin/activate\n")
+                     "   source ~/.local/virtualenvs/python3.7/bin/activate\n")
     sys.exit(ExitCode)
 
 
