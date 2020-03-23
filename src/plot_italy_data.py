@@ -18,6 +18,7 @@ import time
 from matplotlib import pyplot as plt
 from error import exit_with_error
 from classes import ITALY_DATA
+from scipy import optimize
 
 
 def print_help(ExitCode):
@@ -29,7 +30,7 @@ def print_help(ExitCode):
     FUTURE:
     """
     sys.stderr.write(
-        "python3 ./src/plot_italy_data.py option_to_plot italy_data_file\n"
+        "python3 ./src/plot_italy_data.py option_to_plot italy_data_file [log-lin] \n"
         "      option_to_plot : \n"
         "           'hosp_w_sympt'  : Hospitalized w/ Symptoms\n"
         "           'icu'           : Intensive Care Units\n"
@@ -42,6 +43,9 @@ def print_help(ExitCode):
         "           'total_cases'   : Total Cases\n"
         "           'swabs'         : Swabs\n"
         "      italy_data_file : the path to the dpc-covid19-ita-andamento-nazionale.csv\n"
+        "      [log-lin] :optional, plot y axis in natural log, if straight line \n"
+        "              then experiencing exponential growth. If not specified, \n"
+        "              linear assumed\n"
         "      \n"
         "   To Run: \n"
         "   source ~/.local/virtualenvs/python3.7/bin/activate\n")
@@ -64,8 +68,15 @@ def main():
     # Get options 
     if("-h" in sys.argv[1]):
         print_help(0)
-    elif(nArg != 3):
+    elif(nArg != 3 and nArg != 4):
         print_help(1)
+    if(nArg == 4 and sys.argv[3] == "log-lin"):
+        plotType = "log-lin"       # Straight line equals exponential growth
+    elif(nArg == 4):
+        exit_with_error("ERROR!! Invalid option for plottype\n")
+    else:
+        plotType = "lin-lin"       # Straight line equals linear growth
+
     startTime = time.time()
     print("{} \n".format(sys.argv),flush=True)
     print("   Start Time : {}".format(time.strftime("%a, %d %b %Y %H:%M:%S ",
@@ -104,35 +115,69 @@ def main():
 
     # Get values to plot
     n  = len(italyDataL)
-    xV = np.zeros([n])
+    xV = np.asarray([x for x in range(n)])
     yV = np.zeros([n])
     i  = 0
     for italyData in italyDataL:
         if(option == 'hosp_w_sympt'):
-            
-            
+            yV = np.asarray([y.hospSym for y in italyDataL])
+            ylabel = "Hospitalized with Symptoms"
+
         elif(option == 'icu'):
+            yV = np.asarray([y.icu for y in italyDataL])
+            ylabel = "ICU"
 
         elif(option == 'total_hosp'):
+            yV = np.asarray([y.totalHosp for y in italyDataL])
+            ylabel = "Total Hospilized"
 
         elif(option == 'home_isolation'):
+            yV = np.asarray([y.homeIsol for y in italyDataL])
+            ylabel = "Home Isolation"
 
         elif(option == 'total_positive'):
+            yV = np.asarray([y.totalPos for y in italyDataL])
+            ylabel = "Total Positive"
 
         elif(option == 'new_positive'):
+            yV = np.asarray([y.newPos for y in italyDataL])
+            ylabel = "New Positive"
 
         elif(option == 'discharged'):
+            yV = np.asarray([y.discharge for y in italyDataL])
+            ylabel = "Discharged"
 
         elif(option == 'dead'):
+            yV = np.asarray([y.dead for y in italyDataL])
+            ylabel = "Dead"
 
         elif(option == 'total_cases'):
+            yV = np.asarray([y.totalCases for y in italyDataL])
+            ylabel = "Total Cases"
 
         elif(option == 'swabs'):
-    
+            yV = np.asarray([y.swabs for y in italyDataL])
+            ylabel = "Swabs"
+
         else:
             exit_with_error("ERROR!!! invalid option ({}) for "
                             "option_to_plot\n".format(option))
 
+    # Generate Plot
+    if(plotType == "log-lin"):
+        yV = np.log(yV)
+        fit = np.polyfit(xV,yV,deg=1)
+        xfit= np.asarray([x for x in np.arange(0,n,n/100.0)])
+        yfit= fit[0]*xfit + fit[1]
+    #fig = plt.figure()
+    fig, ax = plt.subplots(1,1)
+    ax.plot(xV, yV, label=ylabel)
+    ax.plot(xfit, yfit, label="Fit - y={:.3f}x+{:.3f}".format(fit[0],fit[1]))
+    ax.set_title("Time vs. ln({})".format(ylabel))
+    ax.set_xlabel("Time")
+    ax.set_ylabel("ln({})".format(ylabel))
+    ax.legend()
+    plt.show()
 
     print("Ended : %s"%(time.strftime("%D:%H:%M:%S")))
     print("Run Time : {:.4f} h".format((time.time() - startTime)/3600.0))
