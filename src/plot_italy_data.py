@@ -30,7 +30,7 @@ def print_help(ExitCode):
     FUTURE:
     """
     sys.stderr.write(
-        "python3 ./src/plot_italy_data.py option_to_plot italy_data_file [log-lin] \n"
+        "python3 ./src/plot_italy_data.py option_to_plot italy_data_file [log-lin] [index]\n"
         "      option_to_plot : \n"
         "           'hosp_w_sympt'  : Hospitalized w/ Symptoms\n"
         "           'icu'           : Intensive Care Units\n"
@@ -43,9 +43,13 @@ def print_help(ExitCode):
         "           'total_cases'   : Total Cases\n"
         "           'swabs'         : Swabs\n"
         "      italy_data_file : the path to the dpc-covid19-ita-andamento-nazionale.csv\n"
-        "      [log-lin] :optional, plot y axis in natural log, if straight line \n"
+        "      [log-lin] : optional, plot y axis in natural log, if straight line \n"
         "              then experiencing exponential growth. If not specified, \n"
         "              linear assumed\n"
+        "      [slice_index]   : for fitting, e.g. \n"
+        "                           if = -10, it will fit the last 10 points\n"
+        "                           if = 10, it will fit the first 10 points\n"
+        "      \n"
         "      \n"
         "   To Run: \n"
         "   source ~/.local/virtualenvs/python3.7/bin/activate\n")
@@ -59,6 +63,7 @@ def main():
     DESCRIPTION:
     DEBUG:
     FUTURE:
+        1. Add option to fit only a specific section of data.
     """
     # Check Python version
     nArg = len(sys.argv)
@@ -68,14 +73,16 @@ def main():
     # Get options 
     if("-h" in sys.argv[1]):
         print_help(0)
-    elif(nArg != 3 and nArg != 4):
+    elif(nArg != 3 and nArg != 4 and nArg != 5):
         print_help(1)
-    if(nArg == 4 and sys.argv[3] == "log-lin"):
+    if(nArg >= 4 and sys.argv[3] == "log-lin"):
         plotType = "log-lin"       # Straight line equals exponential growth
-    elif(nArg == 4):
+    elif(nArg >= 4 and sys.arg[3] == "lin-lin"):
         exit_with_error("ERROR!! Invalid option for plottype\n")
-    else:
-        plotType = "lin-lin"       # Straight line equals linear growth
+    #else:
+    #    plotType = "lin-lin"       # Straight line equals linear growth
+    if(nArg == 5):
+        slcIdx = int(sys.argv[4])
 
     startTime = time.time()
     print("{} \n".format(sys.argv),flush=True)
@@ -163,16 +170,23 @@ def main():
             exit_with_error("ERROR!!! invalid option ({}) for "
                             "option_to_plot\n".format(option))
 
+    fig, ax = plt.subplots(1,1)
     # Generate Plot
     if(plotType == "log-lin"):
         yV = np.log(yV)
+        # Slice and only keep what 
+        if(nArg == 5):
+            if(slcIdx < 0):
+                xV = xV[slcIdx:]
+                yV = yV[slcIdx:]
+            elif(slcIdx > 0):
+                xV = xV[:slcIdx]
+                yV = yV[:slcIdx]
         fit = np.polyfit(xV,yV,deg=1)
         xfit= np.asarray([x for x in np.arange(0,n,n/100.0)])
         yfit= fit[0]*xfit + fit[1]
-    #fig = plt.figure()
-    fig, ax = plt.subplots(1,1)
+        ax.plot(xfit, yfit, label="Fit - y={:.3f}x+{:.3f}".format(fit[0],fit[1]))
     ax.plot(xV, yV, label=ylabel)
-    ax.plot(xfit, yfit, label="Fit - y={:.3f}x+{:.3f}".format(fit[0],fit[1]))
     ax.set_title("Time vs. ln({})".format(ylabel))
     ax.set_xlabel("Time")
     ax.set_ylabel("ln({})".format(ylabel))
