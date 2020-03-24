@@ -177,12 +177,13 @@ def main():
         # Slice and only keep what 
         if(nArg == 5):
             if(slcIdx < 0):
-                xV = xV[slcIdx:]
-                yV = yV[slcIdx:]
+                xfit = xV[slcIdx:]
+                yfit = yV[slcIdx:]
             elif(slcIdx > 0):
-                xV = xV[:slcIdx]
-                yV = yV[:slcIdx]
-        fit = np.polyfit(xV,yV,deg=1)
+                xfit = xV[:slcIdx]
+                yfit = yV[:slcIdx]
+        # Reuse xfit, and yfit
+        fit = np.polyfit(xfit,yfit,deg=1)
         xfit= np.asarray([x for x in np.arange(0,n,n/100.0)])
         yfit= fit[0]*xfit + fit[1]
         ax.plot(xfit, yfit, label="Fit - y={:.3f}x+{:.3f}".format(fit[0],fit[1]))
