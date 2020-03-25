@@ -39,7 +39,7 @@ class AGENT:
 
 class ITALY_DATA:
     """
-    Class to define Agent in simuluation
+    Class to define Italy data in simuluation
     """
     def __init__(self, Date=None, HospitalizedWithSymptoms=None, IntensiveCare=None,
                 AllHospitalized=None, HomeIsolation=None,
@@ -81,4 +81,19 @@ class ITALY_DATA:
         self.swabs = int(Swabs)
 
 
+class JOHNS_HOPKINS_DATA:
+    """
+    Class to define Agent in simuluation
+    """
+    def __init__(self, Date=None, HospitalizedWithSymptoms=None, IntensiveCare=None,
+                AllHospitalized=None, HomeIsolation=None,
+                TotalCurrentlyPositive=None, NewPositive=None,
+                DischargedHealed=None, Dead=None, TotalCases=None, Swabs=None):
+        """
+        ARGS:
+        RETURN:
+        DESCRIPTION:
+        DEBUG:
+        FUTURE:
+        """
 
