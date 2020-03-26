@@ -28,12 +28,13 @@ class AGENT:
         DEBUG:
         FUTURE:
         """
-        self.isInf     = False      # Is agent infected?
-        self.nInf      = 0          # Number of people infected by this agent
-        self.startInf  = -1         # Time step agent infected
-        self.isHosp    = False      # Is hospitalized
-        self.isTest    = False      # Is agent tested for virus?
-        self.isDead    = False      # Is Agent dead?
+        self.infected  = False      # Is agent infected?
+        self.nInfect   = 0          # Number of people infected by this agent
+        self.start     = -1         # Time step agent infected
+        self.hospilized= False      # Is hospitalized
+        self.tested    = False      # Is agent tested for virus?
+        self.immune    = False      # Is agent tested for virus?
+        self.dead      = False      # Is Agent dead?
 
 
 
