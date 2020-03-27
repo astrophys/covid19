@@ -1,0 +1,6 @@
+Did:
+
+
+TO DO:
+1. Consider using ising-like model
+2. Handle fractional R0.  Currently unhandled. Handle when infects more than R0?
