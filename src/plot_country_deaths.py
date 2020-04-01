@@ -126,12 +126,38 @@ def main():
     ax.set_title("Covid-19 Deaths per country (ending {})".format(lastDate))
 
     # Loop through keys and plot
+    idx=0
+    lineStyleL=["-","--","-.",":", "solid"]
     for country in dataD.keys():
-        ax.plot(range(len(dataD[country])), np.log(dataD[country]), label="{}".format(country))
+        lineStyle=lineStyleL[idx%len(lineStyleL)]
+        xV = range(len(dataD[country]))
+        yV = np.log(dataD[country])
+        ax.plot(xV, yV, label="{}".format(country),ls=lineStyle)
+        #ax.annotate([xV[-1], yV[-1]
+        ax.annotate(country, xy=(xV[-1], yV[-1]), ha="center", va="center",
+                    rotation=45)
+        idx+=1
+
+    # Generate data for different doubling times
+    ## Doubling time = 1 day
+    n=15
+    xV = range(n)
+    yV = np.log(np.asarray([1*2**x for x in xV]))
+    ax.plot(xV, yV, label="2bl time=1 day",ls="solid",color="black")
+    ax.annotate("1 day", xy=(xV[-1], yV[-1]), ha="center",
+                va="center", rotation=45)
+        
+    ## Doubling time = 3 day
+    n=35
+    xV = range(n)
+    yV = np.log(np.asarray([1*2**(x/3.0) for x in xV]))
+    ax.plot(xV, yV, label="2bl time= 3 day",ls="solid",color="black")
+    ax.annotate("3 day", xy=(xV[-1], yV[-1]), ha="center",
+                va="center", rotation=45)
         
 
     # Generate Plot
-    ax.set_xlabel("Time spanning 0 days since first death")
+    ax.set_xlabel("Time spanning days since first death")
     ax.set_ylabel("{}".format("ln(deaths)"))
     ax.legend()
     plt.show()
