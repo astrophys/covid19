@@ -75,6 +75,7 @@ def main():
     print("{} \n".format(sys.argv),flush=True)
     print("   Start Time : {}".format(time.strftime("%a, %d %b %Y %H:%M:%S ",
                                        time.localtime())),flush=True)
+    plotType = "log-lin"
     
     # Get args
     dataPath = "data/jhu/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv"
@@ -87,11 +88,26 @@ def main():
         for index, row in df.iterrows():
             # Select country specified
             if(row.values[1].lower() == country.lower()):
+                vector = np.asarray(row.values[4:],dtype=np.float32)
+                # Convert nan's to 0's, maybe wrong?
+                for i in range(len(vector)):
+                    if(np.isnan(vector[i])):
+                        vector[i]=0
+
                 # += b/c some countries, i.e. china don't have a single country val
                 if(country in dataD.keys()):
-                    dataD[country] += np.asarray(row.values[4:],dtype=np.float32)
+                    # Add
+                    dataD[country] += vector
+                    # Debugging
+                    if(country == 'us' and np.isnan(dataD[country][-1])):
+                        print("{} {}".format(country,len(dataD[country])))
+                    #### FIGURE OUT NAN at end of US ####
+                    if(initLen != len(dataD[country])):
+                        exit_with_error("ERROR!!! {} != {}\n".format(initLen,
+                                        len(dataD[country])))
                 else:
-                    dataD[country]  = np.asarray(row.values[4:],dtype=np.float32)
+                    dataD[country] = vector
+                    initLen = len(dataD[country])
                     
     
     # not every country got deaths at the same time. Let's shift the time
