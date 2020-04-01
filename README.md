@@ -10,11 +10,15 @@ Use a python 3 installation that includes common libraries such as numpy and mat
 ## Usage:
 This repo does several things.
 1. It plots and fits the Itallian covid-19 data from the [national government](https://github.com/pcm-dpc/COVID-19.git). E.g. (fitting the last 10 points) : 
+
    `python src/plot_italy_data.py [option_to_plot] data/dpc-covid19-ita-andamento-nazionale.csv log-lin -10`
+
 2. It plots the country cases (see [John Hopkins' data](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series)) as a function of time. E.g. (fitting the last 10 points) : 
+
     `python src/plot_jhu_data.py us log-lin -10`
 
-3. It plots several countries' death data (see [John Hopkins' data](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series)) showing 1 day and 3 day doubling times. E.g.
+3. It plots several countries' death data (see [John Hopkins' data](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series)) showing 1 day and 3 day doubling times. Motivated by [NYT plot](https://www.nytimes.com/interactive/2020/03/21/upshot/coronavirus-deaths-by-country.html).  E.g.
+
     `python src/plot_country_deaths.py`
 
 
