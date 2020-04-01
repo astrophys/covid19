@@ -78,7 +78,7 @@ def main():
     plotType = "log-lin"
     
     # Get args
-    dataPath = "data/jhu/csse_covid_19_data/csse_covid_19_time_series/time_series_19-covid-Deaths.csv"
+    dataPath = "data/jhu/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"
     countryL = ["us","spain","italy","china","korea, south","germany","france",
                 "canada"]
     df = pd.read_csv(dataPath)
