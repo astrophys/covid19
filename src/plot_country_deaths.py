@@ -123,35 +123,16 @@ def main():
                 break
    
     fig, ax = plt.subplots(1,1)
-    # Generate Plot
-    if(plotType == "log-lin"):
-        ylabel = "ln(cases + 1)"
-        print(yV)
-        yV = yV + 1
-        yV = np.log(yV)
-        # Slice and only keep what 
-        if(nArg == 4):
-            if(slcIdx < 0):
-                xfit = xV[slcIdx:]
-                yfit = yV[slcIdx:]
-            elif(slcIdx > 0):
-                xfit = xV[:slcIdx]
-                yfit = yV[:slcIdx]
-        fit = np.polyfit(xfit,yfit,deg=1)
-        # Reuse xfit, and yfit
-        xfit= np.asarray([x for x in np.arange(0,n,n/100.0)])
-        yfit= fit[0]*xfit + fit[1]
-        ax.plot(xfit, yfit, label="Fit - y={:.3f}x+{:.3f}".format(fit[0],fit[1]))
-        ax.set_title("Covid-19 in {} (ending {})".format(country, lastDate))
-    elif(plotType == "lin-lin"):
-        ylabel = "Covid-19_Cases"
-        exit_with_error("ERROR!! I haven't handled this option yet\n")
+    ax.set_title("Covid-19 Deaths per country (ending {})".format(lastDate))
+
+    # Loop through keys and plot
+    for country in dataD.keys():
+        ax.plot(range(len(dataD[country])), np.log(dataD[country]), label="{}".format(country))
         
-    else:
-        exit_with_error("ERROR!! Invalid plotType option\n")
-    ax.plot(xV, yV, label=ylabel)
-    ax.set_xlabel("Time spanning 0-{} days".format(n-1))
-    ax.set_ylabel("{}".format(ylabel))
+
+    # Generate Plot
+    ax.set_xlabel("Time spanning 0 days since first death")
+    ax.set_ylabel("{}".format("ln(deaths)"))
     ax.legend()
     plt.show()
 
