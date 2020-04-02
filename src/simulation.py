@@ -23,7 +23,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from error import exit_with_error
 import random
-#random.seed(42)     # 
+random.seed(42)     # 
 from classes import AGENT
 
 def print_help(ExitCode):
@@ -79,14 +79,14 @@ def main():
     hostRate   = 0.20           # Fraction that get hospitalized
     healthyTime= 14             # Time after infection that person is healthy and no longer infectious
     nDays      = 100
-    sd         = 5              # Standard deviation for gaussian distribution for infection
+    #sd         = 5              # Standard deviation for gaussian distribution for infection
     N = 10**3       # Number of agents
 
 
     # Initialization
     agentL = []
     for i in range(N):
-        agentL.append(AGENT())
+        agentL.append(AGENT(ID=i))
 
     # Make one person infected
     agentL[0].infected = True
@@ -99,7 +99,7 @@ def main():
     for day in range(nDays):
         nInfect = 0
         nTotal  = 0 # number infected + number immune
-        i = 0                               # Agent index
+        #i = 0                               # Agent index
         for agent in agentL:
             if(agent.infected == True):
                 nInfect += 1                # Track number infected at this time step
@@ -107,12 +107,13 @@ def main():
                 if(diff > incubTime):
                     #idx = int(np.random.normal(loc=i, scale=sd))  #index of possible infection
                     idx = random.randint(0,N-1)  #index of possible infection
-                    # If random number outside of boundary, ignore
-                    if(idx < 0 or idx >=N or idx == i):
+                    # If picking self to infect
+                    if(agentL[idx] == agent):
                         continue
                     # prob of infection = R0 / (healthyTime - infectTime
                     prob = R0 / (healthyTime - infectTime)
                     rng = random.random()
+                    #print(day,rng,prob)
                     if(rng < prob and agentL[idx].immune == False and
                        agentL[idx].infected == False
                     ):
@@ -124,12 +125,13 @@ def main():
                     agent.immune = True 
                     agent.infected = False
                 # Get R0 as function of time
-                if(agent.infected == True or agent.immune == True):
+                if(agent.immune == True):
                     R0V[day] += agent.nInfect
                     nTotal += 1
-            i+=1
+            #i+=1
         yV[day] = nInfect
-        R0V[day] = R0V[day] / nTotal
+        if(nTotal > 0):
+            R0V[day] = R0V[day] / nTotal
 
     # Get number immune
     nImmune = 0

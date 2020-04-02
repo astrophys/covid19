@@ -20,7 +20,7 @@ class AGENT:
     """
     Class to define Agent in simuluation
     """
-    def __init__(self):
+    def __init__(self,ID=None):
         """
         ARGS:
         RETURN:
@@ -35,6 +35,7 @@ class AGENT:
         self.tested    = False      # Is agent tested for virus?
         self.immune    = False      # Is agent tested for virus?
         self.dead      = False      # Is Agent dead?
+        self.id        = ID
 
 
 
