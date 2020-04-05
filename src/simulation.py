@@ -77,7 +77,7 @@ def main():
     infectTime = float(sys.argv[3])    # Time before infectious
     deathRate  = 0.01           # fraction of infected that die
     hostRate   = 0.20           # Fraction that get hospitalized
-    healthyTime= 14             # Time after infection that person is healthy and no longer infectious
+    healthyTime= 8             # Time after infection that person is healthy and no longer infectious
     nDays      = 100
     #sd         = 5              # Standard deviation for gaussian distribution for infection
     N = 10**3       # Number of agents
