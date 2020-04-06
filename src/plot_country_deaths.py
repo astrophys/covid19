@@ -161,7 +161,7 @@ def main():
     n=45
     xV = range(n)
     yV = np.log(np.asarray([1*2**(x/10.0) for x in xV]))
-    ax.plot(xV, yV, label="2bl time= 3 day",ls="solid",color="black")
+    ax.plot(xV, yV, label="2bl time= 10 day",ls="solid",color="black")
     ax.annotate("10 day", xy=(xV[-1], yV[-1]), ha="center",
                 va="center", rotation=45)
         
