@@ -80,7 +80,7 @@ def main():
     # Get args
     dataPath = "data/jhu/csse_covid_19_data/csse_covid_19_time_series/time_series_covid19_deaths_global.csv"
     countryL = ["us","spain","italy","china","korea, south","germany","france",
-                "canada"]
+                "canada","united kingdom"]
     df = pd.read_csv(dataPath)
     lastDate = df.columns[-1]
     dataD = dict()      # A dictionary, keys = country, values=np array of deaths
@@ -134,6 +134,8 @@ def main():
         yV = np.log(dataD[country])
         ax.plot(xV, yV, label="{}".format(country),ls=lineStyle)
         #ax.annotate([xV[-1], yV[-1]
+        if(country == "united kingdom"):
+            country = "UK"
         ax.annotate(country, xy=(xV[-1], yV[-1]), ha="center", va="center",
                     rotation=45)
         idx+=1
@@ -154,6 +156,15 @@ def main():
     ax.plot(xV, yV, label="2bl time= 3 day",ls="solid",color="black")
     ax.annotate("3 day", xy=(xV[-1], yV[-1]), ha="center",
                 va="center", rotation=45)
+
+    ## Doubling time = 10 day
+    n=45
+    xV = range(n)
+    yV = np.log(np.asarray([1*2**(x/10.0) for x in xV]))
+    ax.plot(xV, yV, label="2bl time= 3 day",ls="solid",color="black")
+    ax.annotate("10 day", xy=(xV[-1], yV[-1]), ha="center",
+                va="center", rotation=45)
+        
         
 
     # Generate Plot
