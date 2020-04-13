@@ -70,3 +70,99 @@ abstract:
 
     
 
+
+[@osuidi20]
+--------------
+1. Methods 
+    a) Dynamic Network Model - see [@newman18]
+        #. Nodes represent people and edges represent connection through proximity
+        #. Three distinguishing features of statewide model
+            * Model supports dynamic network where edges can be deactivated over time.
+                + Reflect social distancing impacts more accurately.
+            * Use law of large numbers to derive set of differential equations that describe disease process on a large network w/o requiring simulation methods
+            * Solutions to DE's can be used to est. model params using principled statistical approach base on survival analysis. 
+                + Permits more accurate quantification of uncertainty.
+                + See [@khudabukhsh19]
+        #. Use age distribution of county to predice how many hospitalizations will occur.
+            * Assumes the distribution of new infections is uniform across age distribution
+
+    #) Detailed Methods of Statewide Model
+        #. Challenges of traditional compartmentel models
+            * If using the entire population, can over-estimate
+            * Lack of data on mild / asymptomatic infection is problematic
+        #. Use "Dynamic Survival Analysis" [@bastian20]
+        #. Advantages, does not require : 
+            * Knowing the size of the susceptible population
+            * Overall disease prevalence in population
+            * Prior knowledge of the shape of the epidemic curve.
+        #. Lack of testing makes this necessary b/c no knowledge of asymptomatic cases.
+        #. See [@jacobsen16], only single differential equation needed
+            * Optimized using Maximum Likelihood Estimation
+            * Use negative log-likelihood b/c it is numerically stable. 
+            * Use quasi newton's algorithm
+
+        #. Assumptions 
+            * Each individual has number of neighbors. Drawn from degree distribution
+            * Three types. (S)usceptible, (I)nfective, (R)emoved
+            * Disease spread occurs over network of contacts
+            * Each infected individual
+                + recovers or dies
+                + Or is restricted from contacting network
+        #. Once infected, individual has infections period that has exponential dist.
+        #. People who are ill remain infectious and a partial count of new illnesses is observed over time
+            * Negligible chance of misdiagnosis.
+        #. Estimating Transmission Rates.
+        #. Estimating dropout and recovery rates
+    #) Geographic Modeling Methods
+        #. Estimating Hospital Census over Time
+            * 1st statewide model produces time series estimates of cases across state
+            * 2nd results are translated into estimated ICU and hospitalizations
+                + Estimate case onset time series for each age group based on age stratification in each geographic area modeled.
+                + Estimate number of cases that will need hospitalization using age/risk factors
+                + Use probability distributions for time from illness to onset of hospitalization   
+    #) Description of Data
+        #. Demographic Data
+            * Downloaded from [US Census Bureau 5-year American Community Survey](https://data.census.gov/cedsci/table?q=dp&tid=ACSDP1Y2018.DP02)
+            * Got Hospital market share data (trade secret) from Ohio Hospital Association
+        #. Definition of Hospital Catchment Areas.
+            * Got Ohio county boundary data from U.S. Census Cartographic Boundary Files.
+            * Linked with Hospital market share data
+            * Only included areas with ICUs, exclude hospice, long-term care facilities.
+            * Defined :
+                + Used location of all hospitals in Ohio to generate a Voronoi diagram.
+                    - Include neighboring states where applicable.
+                    - 205 areas generated
+                + Voronoi polygons overlaid with ZIP codes
+                + Used Hospital market share file. In metro areas, combined polygons into single metro area
+                + Generated 96 Hospital Catchment Areas 
+#. Discussion
+    a) Comparison with other approaches.
+        #. Many use susceptible-infectious-recovered (SIR) framework
+            * I=infectious, which requires knowledge of both symptomatic and asymptomatic
+                + Info currently unavailable.
+
+#. Appendix A
+    a) Detailed Desciption of Statewide Model Development
+    #) Network Dynamics Assumptions
+        #. Spread occurs over a network of contacts at fixed rate of $\beta > 0$
+        #. Infected individual may recover at rate of $\gamma > 0$
+        #. Voluntary quarantine rate $\delta > 0$
+        #. Infected individuals stay infected for random amount of time per exponential dist
+        #. There is a negligible chance of misdiagnosis.
+
+
+#. Appendix B
+
+
+
+
+
+
+
+
+
+
+
+
+
+            

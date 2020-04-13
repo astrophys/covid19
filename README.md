@@ -26,3 +26,4 @@ This repo does several things.
 1. [Strategies for mitigating an influenza pandemic](https://www.nature.com/articles/nature04795#Sec2)
 2. [Impact of non-pharmaceutical interventions (NPIs) to reduce COVID- 19 mortality and healthcare demand](https://spiral.imperial.ac.uk:8443/handle/10044/1/77482)
 3. [Italian Department of Civil Protection](https://github.com/pcm-dpc/COVID-19.git)
+4. [Institute for Health Metrics and Evaluation](https://covid19.healthdata.org/united-states-of-america)
