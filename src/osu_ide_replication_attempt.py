@@ -35,7 +35,7 @@ def print_help(ExitCode):
     FUTURE:
     """
     sys.stderr.write(
-        "python3 ./src/osu_ide_replication_attempt.py R0 inc_time infect_time \n"
+        "python3 ./src/osu_ide_replication_attempt.py \n"
         "      R0          : How many people on average person infects\n"
         "      inc_time    : Incubation time (days)\n"
         "      infect_time : Time after infection person becomes infectious \n"
@@ -66,6 +66,9 @@ def print_help(ExitCode):
 #           Below functions are derived from Appendix A
 #       DEBUG  : 
 #       FUTURE :
+#           1. Actually debug all these stupid functions.
+#
+#
 #
 def f_D(Beta=None,Delta=None,Kappa=None, Gamma=None, Mu=None, X_D=None, X_S=None, X_I=None):
     """
@@ -118,9 +121,9 @@ def k2(K1D=None, Funct=None, H=None, Beta=None, Delta=None, Kappa=None, Gamma=No
     DESCRIPTION:
     """
     # No explicit time dependence in functions, so don't worry about it.
-    k1_D = K1D["X_D"]
-    k1_S = K1D["X_S"]
-    k1_I = K1D["X_I"]
+    k1_D = K1D["xD"]
+    k1_S = K1D["xS"]
+    k1_I = K1D["xI"]
     xD = X_D + 0.5 * k1_D
     xS = X_S + 0.5 * k1_S
     xI = X_I + 0.5 * k1_I
@@ -137,9 +140,9 @@ def k3(K2D=None, Funct=None, H=None, Beta=None, Delta=None, Kappa=None, Gamma=No
     RETURN:
     DESCRIPTION:
     """
-    k2_D = K2D["X_D"]
-    k2_S = K2D["X_S"]
-    k2_I = K2D["X_I"]
+    k2_D = K2D["xD"]
+    k2_S = K2D["xS"]
+    k2_I = K2D["xI"]
     xD = X_D + 0.5 * k2_D
     xS = X_S + 0.5 * k2_S
     xI = X_I + 0.5 * k2_I
@@ -156,9 +159,9 @@ def k4(K3D=None, Funct=None, H=None, Beta=None, Delta=None, Kappa=None, Gamma=No
     RETURN:
     DESCRIPTION:
     """
-    k3_D = K3D["X_D"]
-    k3_S = K3D["X_S"]
-    k3_I = K3D["X_I"]
+    k3_D = K3D["xD"]
+    k3_S = K3D["xS"]
+    k3_I = K3D["xI"]
     xD = X_D + k3_D
     xS = X_S + k3_S
     xI = X_I + k3_I
@@ -180,9 +183,9 @@ def main():
     if(sys.version_info[0] != 3):
         exit_with_error("ERROR!!! Use Python 3\n")
     # Get options 
-    if("-h" in sys.argv[1]):
+    if(len(sys.argv) > 1 and "-h" in sys.argv[1]):
         print_help(0)
-    elif(nArg != 4):
+    elif(nArg != 1):
         print_help(1)
 
     startTime = time.time()
@@ -198,6 +201,7 @@ def main():
     delta = 0.1    # quarantine 
     rho=1
     R0 = kappa * beta / gamma
+    nDays = 100
     #R0         = float(sys.argv[1])    # Average number of people infected
     #incubTime  = float(sys.argv[2])    # Time before symptoms present
     #infectTime = float(sys.argv[3])    # Time before infectious
@@ -212,7 +216,49 @@ def main():
     xS = 1
     xI = rho
     xD = mu * rho
+    k1D = dict()
+    k2D = dict()
+    k3D = dict()
+    k4D = dict()
+    dt=1
 
+    print("{:<6} : {:<10} {:<10} {:<10}".format("Time","xD","xS","xI"))
+
+    for t in range(0,nDays,dt):
+        print("{:<6} : {:<10.4e} {:<10.4e} {:<10.4e}".format(t,xD,xS,xI))
+        ## k1
+        k1D['xD'] = k1(Funct=f_D, H=dt, Beta=beta, Delta=delta, Kappa=kappa, Gamma=gamma,
+                       Mu=mu, X_D=xD, X_S=xS, X_I=xI)
+        k1D['xS'] = k1(Funct=f_S, H=dt, Beta=beta, Delta=delta, Kappa=kappa, Gamma=gamma,
+                       Mu=mu, X_D=xD, X_S=xS, X_I=xI)
+        k1D['xI'] = k1(Funct=f_I, H=dt, Beta=beta, Delta=delta, Kappa=kappa, Gamma=gamma,
+                       Mu=mu, X_D=xD, X_S=xS, X_I=xI)
+        ## k2
+        k2D['xD'] = k2(K1D=k1D, Funct=f_D, H=dt, Beta=beta, Delta=delta, Kappa=kappa,
+                       Gamma=gamma, Mu=mu, X_D=xD, X_S=xS, X_I=xI)
+        k2D['xS'] = k2(K1D=k1D, Funct=f_S, H=dt, Beta=beta, Delta=delta, Kappa=kappa,
+                       Gamma=gamma, Mu=mu, X_D=xD, X_S=xS, X_I=xI)
+        k2D['xI'] = k2(K1D=k1D, Funct=f_I, H=dt, Beta=beta, Delta=delta, Kappa=kappa,
+                       Gamma=gamma, Mu=mu, X_D=xD, X_S=xS, X_I=xI)
+        ## k3
+        k3D['xD'] = k3(K2D=k2D, Funct=f_D, H=dt, Beta=beta, Delta=delta, Kappa=kappa,
+                       Gamma=gamma, Mu=mu, X_D=xD, X_S=xS, X_I=xI)
+        k3D['xS'] = k3(K2D=k2D, Funct=f_S, H=dt, Beta=beta, Delta=delta, Kappa=kappa,
+                       Gamma=gamma, Mu=mu, X_D=xD, X_S=xS, X_I=xI)
+        k3D['xI'] = k3(K2D=k2D, Funct=f_I, H=dt, Beta=beta, Delta=delta, Kappa=kappa,
+                       Gamma=gamma, Mu=mu, X_D=xD, X_S=xS, X_I=xI)
+        ## k4
+        k4D['xD'] = k4(K3D=k3D, Funct=f_D, H=dt, Beta=beta, Delta=delta, Kappa=kappa,
+                       Gamma=gamma, Mu=mu, X_D=xD, X_S=xS, X_I=xI)
+        k4D['xS'] = k4(K3D=k3D, Funct=f_S, H=dt, Beta=beta, Delta=delta, Kappa=kappa,
+                       Gamma=gamma, Mu=mu, X_D=xD, X_S=xS, X_I=xI)
+        k4D['xI'] = k4(K3D=k3D, Funct=f_I, H=dt, Beta=beta, Delta=delta, Kappa=kappa,
+                       Gamma=gamma, Mu=mu, X_D=xD, X_S=xS, X_I=xI)
+
+        # Get next step value
+        xD = xD + 1/6*(k1D['xD'] + 2*k2D['xD'] + 2*k3D['xD'] + k4D['xD'])
+        xS = xS + 1/6*(k1D['xS'] + 2*k2D['xS'] + 2*k3D['xS'] + k4D['xS'])
+        xI = xI + 1/6*(k1D['xI'] + 2*k2D['xI'] + 2*k3D['xI'] + k4D['xI'])
 
     print("Ended : %s"%(time.strftime("%D:%H:%M:%S")))
     print("Run Time : {:.4f} h".format((time.time() - startTime)/3600.0))
