@@ -36,10 +36,6 @@ def print_help(ExitCode):
     """
     sys.stderr.write(
         "python3 ./src/osu_ide_replication_attempt.py \n"
-        "      R0          : How many people on average person infects\n"
-        "      inc_time    : Incubation time (days)\n"
-        "      infect_time : Time after infection person becomes infectious \n"
-        "      \n"
         "      \n"
         "   To Run: \n"
         "   source ~/.local/virtualenvs/python3.7/bin/activate\n")
@@ -67,6 +63,7 @@ def print_help(ExitCode):
 #       DEBUG  : 
 #       FUTURE :
 #           1. Actually debug all these stupid functions.
+#
 #
 #
 #

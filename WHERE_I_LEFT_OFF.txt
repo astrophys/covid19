@@ -5,3 +5,4 @@ TO DO:
 1. Consider using ising-like model
 2. Handle fractional R0.  Currently unhandled. Handle when infects more than R0?
 3. Fit curve (gaussian) to infected plot. See if it sdev matches 14 days
+4. Change AGENT class to use SIR labels, susceptible, infected, recovered.

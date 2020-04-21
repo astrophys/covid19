@@ -1,0 +1,190 @@
+# Author : Ali Snedden
+# Date   : 4/12/20
+# License: MIT
+# Purpose: 
+#   This code attmpts to follow OSU / IDI∗ COVID-19 Response Modeling Team's white paper.
+#   
+#
+#   
+# Notes : 
+#   
+# References : 
+#   1. https://idi.osu.edu/assets/pdfs/covid_response_white_paper.pdf
+#   2. https://mbi.osu.edu/events/seminar-grzegorz-rempala-mathematical-models-epidemics-tracking-coronavirus-using-dynamic
+#
+# Future:
+#   
+#
+#
+import sys
+import numpy as np
+import time
+import pandas as pd
+from matplotlib import pyplot as plt
+from error import exit_with_error
+import random
+random.seed(42)     # Change later
+from classes import AGENT
+
+
+def print_help(ExitCode):
+    """
+    ARGS:
+    RETURN:
+    DESCRIPTION:
+    DEBUG:
+    FUTURE:
+    """
+    sys.stderr.write(
+        "python3 ./src/osu_ide_replication_attempt.py \n"
+        "      \n"
+        "   To Run: \n"
+        "   source ~/.local/virtualenvs/python3.7/bin/activate\n")
+    sys.exit(ExitCode)
+
+
+def displacement(Agent1=None, Agent2=None):
+    """
+    ARGS:
+    RETURN:
+    DESCRIPTION:
+        Gives displacement between two agents.
+    DEBUG:
+    FUTURE:
+    """
+    x1=Agent1.x
+    y1=Agent1.y
+    z1=Agent1.z
+
+    x2=Agent2.x
+    y2=Agent2.y
+    z2=Agent2.z
+
+    return np.sqrt( (x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2)
+
+
+
+def move_agent(Agent=None, DeltaT=None):
+    """
+    ARGS:
+    RETURN:
+    DESCRIPTION:
+        Moves agent. Applies implied boundary conditions [0,0,0] -> [1,1,1]
+    DEBUG:
+    FUTURE:
+    """
+    x = Agent.vL[0] * DeltaT
+    y = Agent.vL[1] * DeltaT
+    z = Agent.vL[2] * DeltaT
+
+    if(x < 0):
+        x = -1.0 * x
+        Agent.vL[0] = -1.0 * Agent.vL[0]
+    if(y < 0):
+        y = -1.0 * y
+        Agent.vL[1] = -1.0 * Agent.vL[1]
+    if(z < 0):
+        z = -1.0 * z
+        Agent.vL[2] = -1.0 * Agent.vL[2]
+    if(x > 1.0):
+        d = x - 1.0
+        x = x - d
+        Agent.vL[0] = -1.0 * Agent.vL[0]
+    if(y > 1.0):
+        d = y - 1.0
+        y = y - d
+        Agent.vL[1] = -1.0 * Agent.vL[1]
+    if(z > 1.0):
+        d = z - 1.0
+        z = z - d
+        Agent.vL[2] = -1.0 * Agent.vL[2]
+    # Adjust Position
+    AgentL.posL[0] = x
+    AgentL.posL[1] = y
+    AgentL.posL[2] = z
+    # Adjust velocity
+    dvx = random.uniform(-1,1)/100.0 # Want crossing time to be about 25 steps
+    dvy = random.uniform(-1,1)/100.0
+    dvz = random.uniform(-1,1)/100.0
+    AgentL.posL[0] += dvx
+    AgentL.posL[1] += dvy
+    AgentL.posL[2] += dvz
+    
+
+def main():
+    """
+    ARGS:
+    RETURN:
+    DESCRIPTION:
+    DEBUG:
+    FUTURE:
+        1. Add option to fit only a specific section of data.
+        2. Make main loop NOT O(N^2). Maybe organize by position on a grid.
+    """
+    # Check Python version
+    nArg = len(sys.argv)
+    # Use python 3
+    if(sys.version_info[0] != 3):
+        exit_with_error("ERROR!!! Use Python 3\n")
+    # Get options 
+    if(len(sys.argv) > 1 and "-h" in sys.argv[1]):
+        print_help(0)
+    elif(nArg != 1):
+        print_help(1)
+
+    startTime = time.time()
+    print("{} \n".format(sys.argv),flush=True)
+    print("   Start Time : {}".format(time.strftime("%a, %d %b %Y %H:%M:%S ",
+                                       time.localtime())),flush=True)
+    N     = 100             # Number of Agents
+    nDays = 100             # number of days in simulation
+    dt    = 0.25            # number of steps in a day, total steps = nDays / dt
+    nStep = nDays / dt
+    infectTime = 14 / dt    # Infection time in units of steps
+    asymptomaticTime = 5 / dt    # Infection time in units of steps
+    prob  = 0.25            # Probability of infecting agent within infectDist
+    infectDist = 0.05       # Distance person must be within to get infected
+    agentL= []
+
+    # Initialize agents
+    for n in range(N):
+        agent = AGENT(n)
+        agentL.append(agent)
+
+
+    # Simulation - O(N**2)
+    for step in nStep:
+        for i in range(len(agentL)):
+            agent = agentL[i]
+            # Move
+            move_agent(agent,dt)
+            
+            # Check to infect.
+            if(agent.infected == False and (step - agent.start < asymptomaticTime):
+                continue
+
+            # Try to infect someone
+            for j in range(len(agentL)):
+                # Skip self.
+                if(i==j):
+                    continue
+                d = displacement(agent, agentL[j])
+                if(d <= infectDist):
+                    rng = random.uniform(0,1)
+                    if(rng < prob):
+                        agentL[j].infected=True
+                        agentL[j].start = step
+
+             # If survived, adjust time
+             if(step - agent.start > infectTime):
+                agent.infected = False
+                agent.immune = True
+
+
+
+
+
+
+
+if __name__ == "__main__":
+    main()

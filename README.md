@@ -21,6 +21,11 @@ This repo does several things.
 
     `python src/plot_country_deaths.py`
 
+4. Mention Runge-Kutta integration of DE's from OSU/IDE paper
+
+    `python `
+
+5. Mention Runge-Kutta integration of DE's from OSU/IDE paper
 
 #### References:
 1. [Strategies for mitigating an influenza pandemic](https://www.nature.com/articles/nature04795#Sec2)
@@ -28,3 +33,4 @@ This repo does several things.
 3. [Italian Department of Civil Protection](https://github.com/pcm-dpc/COVID-19.git)
 4. [Institute for Health Metrics and Evaluation](https://covid19.healthdata.org/united-states-of-america)
 5. [Estimating the asymptomatic proportion of coronavirus disease 2019 (COVID-19) cases on board the Diamond Princess cruise ship](https://www.ncbi.nlm.nih.gov/pmc/articles/PMC7078829/)
+6. [Simulating an Epidemic - YouTube](https://www.youtube.com/watch?v=gxAaO2rsdIs)
