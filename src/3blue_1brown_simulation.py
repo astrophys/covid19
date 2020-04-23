@@ -52,15 +52,13 @@ def displacement(Agent1=None, Agent2=None):
     DEBUG:
     FUTURE:
     """
-    x1=Agent1.x
-    y1=Agent1.y
-    z1=Agent1.z
+    x1=Agent1.posL[0]
+    y1=Agent1.posL[1]
 
-    x2=Agent2.x
-    y2=Agent2.y
-    z2=Agent2.z
+    x2=Agent2.posL[0]
+    y2=Agent2.posL[1]
 
-    return np.sqrt( (x1-x2)**2 + (y1-y2)**2 + (z1-z2)**2)
+    return np.sqrt( (x1-x2)**2 + (y1-y2)**2)
 
 
 
@@ -75,7 +73,6 @@ def move_agent(Agent=None, DeltaT=None):
     """
     x = Agent.vL[0] * DeltaT
     y = Agent.vL[1] * DeltaT
-    z = Agent.vL[2] * DeltaT
 
     if(x < 0):
         x = -1.0 * x
@@ -83,9 +80,6 @@ def move_agent(Agent=None, DeltaT=None):
     if(y < 0):
         y = -1.0 * y
         Agent.vL[1] = -1.0 * Agent.vL[1]
-    if(z < 0):
-        z = -1.0 * z
-        Agent.vL[2] = -1.0 * Agent.vL[2]
     if(x > 1.0):
         d = x - 1.0
         x = x - d
@@ -94,21 +88,14 @@ def move_agent(Agent=None, DeltaT=None):
         d = y - 1.0
         y = y - d
         Agent.vL[1] = -1.0 * Agent.vL[1]
-    if(z > 1.0):
-        d = z - 1.0
-        z = z - d
-        Agent.vL[2] = -1.0 * Agent.vL[2]
     # Adjust Position
-    AgentL.posL[0] = x
-    AgentL.posL[1] = y
-    AgentL.posL[2] = z
+    Agent.posL[0] = x
+    Agent.posL[1] = y
     # Adjust velocity
     dvx = random.uniform(-1,1)/100.0 # Want crossing time to be about 25 steps
     dvy = random.uniform(-1,1)/100.0
-    dvz = random.uniform(-1,1)/100.0
-    AgentL.posL[0] += dvx
-    AgentL.posL[1] += dvy
-    AgentL.posL[2] += dvz
+    Agent.posL[0] += dvx
+    Agent.posL[1] += dvy
     
 
 def main():
@@ -139,11 +126,11 @@ def main():
     N     = 100             # Number of Agents
     nDays = 100             # number of days in simulation
     dt    = 0.25            # number of steps in a day, total steps = nDays / dt
-    nStep = nDays / dt
+    nStep = int(nDays / dt)
     infectTime = 14 / dt    # Infection time in units of steps
     asymptomaticTime = 5 / dt    # Infection time in units of steps
     prob  = 0.25            # Probability of infecting agent within infectDist
-    infectDist = 0.05       # Distance person must be within to get infected
+    infectDist = 0.15       # Distance person must be within to get infected
     agentL= []
 
     # Initialize agents
@@ -151,21 +138,42 @@ def main():
         agent = AGENT(n)
         agentL.append(agent)
 
+    # Infect 1 agent
+    agentL[0].infected=True
+
 
     # Simulation - O(N**2)
-    for step in nStep:
+    for step in range(nStep):
+        # Use plotting
+        xL = []
+        yL = []
+        symbolL = []
+        colorL  = []
+
         for i in range(len(agentL)):
             agent = agentL[i]
             # Move
             move_agent(agent,dt)
-            
-            # Check to infect.
-            if(agent.infected == False and (step - agent.start < asymptomaticTime):
+            # Generate for plot
+            xL.append(agent.posL[0])
+            yL.append(agent.posL[1])
+            if(agent.immune == True):
+                symbolL.append(".")     # Removed
+                colorL.append("blue")
+            if(agent.infected == True):
+                symbolL.append("^")     # Infections
+                colorL.append("red")
+            if(agent.infected == False and agent.immune == False):
+                symbolL.append("s")     # Susceptible
+                colorL.append("black")
+
+            # Susceptible Group - Check if infected
+            if(agent.infected == False and (step - agent.start < asymptomaticTime)):
                 continue
 
-            # Try to infect someone
+            # Infectious Group - Try to infect someone
             for j in range(len(agentL)):
-                # Skip self.
+                # Skip self
                 if(i==j):
                     continue
                 d = displacement(agent, agentL[j])
@@ -175,11 +183,17 @@ def main():
                         agentL[j].infected=True
                         agentL[j].start = step
 
-             # If survived, adjust time
-             if(step - agent.start > infectTime):
+             # 'Removed' Group. If survived, adjust time. 
+            if(step - agent.start > infectTime):
                 agent.infected = False
                 agent.immune = True
 
+        # Plot
+        fig, ax = plt.subplots()
+        ax.scatter(xL, yL, c=colorL)
+        ax.grid(True)
+        ax.legend()
+        plt.show()
 
 
 

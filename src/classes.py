@@ -41,13 +41,11 @@ class AGENT:
         # Position - 
         x = random.random()
         y = random.random()
-        z = random.random()
-        self.posL = [x,y,z]            # Let's assume a unit box, b/c why not?
+        self.posL = [x,y]            # Let's assume a unit box, b/c why not?
         # Velocity - 
         vx = random.uniform(-1,1)/25.0 # Want crossing time to be about 25 steps
         vy = random.uniform(-1,1)/25.0
-        vz = random.uniform(-1,1)/25.0
-        self.vL  = [vx, vy, vz]     # Let's assume a unit box, b/c why not?
+        self.vL  = [vx, vy]     # Let's assume a unit box, b/c why not?
 
 
 
