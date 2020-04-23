@@ -21,9 +21,13 @@ This repo does several things.
 
     `python src/plot_country_deaths.py`
 
-4. Mention Runge-Kutta integration of DE's from OSU/IDE paper
+4. I created a fun little toy program that emulates the type of plotting / simulations done in [Simulating an Epidemic - YouTube](https://www.youtube.com/watch?v=gxAaO2rsdIs). 
 
-    `python `
+    `python 3blue_1brown_simulation.py`
+
+    To generate the movie : 
+
+    `ffmpeg -framerate 4 -pattern_type glob -i 'output/*.png' -c:v libx264 out.mp4`
 
 5. Mention Runge-Kutta integration of DE's from OSU/IDE paper
 
