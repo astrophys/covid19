@@ -2,8 +2,8 @@
 # Date   : 4/12/20
 # License: MIT
 # Purpose: 
-#   This code attmpts to follow OSU / IDI∗ COVID-19 Response Modeling Team's white paper.
-#   
+#   This code attmpts to follow https://www.youtube.com/watch?v=gxAaO2rsdIs and try to 
+#   mimic his plots
 #
 #   
 # Notes : 
@@ -21,6 +21,7 @@ import numpy as np
 import time
 import pandas as pd
 from matplotlib import pyplot as plt
+from matplotlib.patches import Circle
 from error import exit_with_error
 import random
 random.seed(42)     # Change later
@@ -102,6 +103,8 @@ def main():
     """
     ARGS:
     RETURN:
+        1. Creates images. Turn into moving using ffmpeg, e.g. 
+           ffmpeg -framerate 4 -pattern_type glob -i 'output/*.png' -c:v libx264 out.mp4
     DESCRIPTION:
     DEBUG:
     FUTURE:
@@ -124,13 +127,13 @@ def main():
     print("   Start Time : {}".format(time.strftime("%a, %d %b %Y %H:%M:%S ",
                                        time.localtime())),flush=True)
     N     = 100             # Number of Agents
-    nDays = 100             # number of days in simulation
+    nDays = 40              # number of days in simulation
     dt    = 0.25            # number of steps in a day, total steps = nDays / dt
     nStep = int(nDays / dt)
     infectTime = 14 / dt    # Infection time in units of steps
     asymptomaticTime = 5 / dt    # Infection time in units of steps
     prob  = 0.25            # Probability of infecting agent within infectDist
-    infectDist = 0.15       # Distance person must be within to get infected
+    infectDist = 0.05       # Distance person must be within to get infected
     agentL= []
 
     # Initialize agents
@@ -173,7 +176,7 @@ def main():
                 ryL.append(agent.posL[1])
 
             # Susceptible Group - Check if infected
-            if(agent.infected == False and (step - agent.start < asymptomaticTime)):
+            if(agent.infected == False or (step - agent.start < asymptomaticTime)):
                 continue
 
             # Infectious Group - Try to infect someone
@@ -187,6 +190,7 @@ def main():
                     if(rng < prob):
                         agentL[j].infected=True
                         agentL[j].start = step
+                        agent.nInfect += 1
 
              # 'Removed' Group. If survived, adjust time. 
             if(step - agent.start > infectTime):
@@ -197,6 +201,12 @@ def main():
         fig, ax = plt.subplots()
         ax.scatter(sxL, syL, c="black", marker=".", label="Susceptible")
         ax.scatter(ixL, iyL, c="red",   marker="^", label="Infected")
+        # Add infection radius
+        for i in range(len(ixL)):
+            circle = Circle((ixL[i], iyL[i]), radius=infectDist)
+            circle.set_edgecolor("red")
+            circle.set_facecolor("none")
+            ax.add_artist(circle)
         ax.scatter(rxL, ryL, c="blue",  marker="s", label="Removed")
         ax.grid(True)
         #ax.legend([".", "^", "s"], ["Removed","Infected","Susceptible"], loc="best")
