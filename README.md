@@ -23,7 +23,7 @@ This repo does several things.
 
 4. I created a fun little toy program that emulates the type of plotting / simulations done in [Simulating an Epidemic - YouTube](https://www.youtube.com/watch?v=gxAaO2rsdIs). 
 
-    `python 3blue_1brown_simulation.py`
+    `python simulating_epidemic_youtube.py`
 
     To generate the movie : 
 
