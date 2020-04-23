@@ -145,27 +145,32 @@ def main():
     # Simulation - O(N**2)
     for step in range(nStep):
         # Use plotting
-        xL = []
-        yL = []
-        symbolL = []
-        colorL  = []
+        sxL = []    # Susceptible xL
+        syL = []
+        ixL = []    # Infected xL
+        iyL = []
+        rxL = []    # Removed xL
+        ryL = []
 
         for i in range(len(agentL)):
             agent = agentL[i]
             # Move
             move_agent(agent,dt)
             # Generate for plot
-            xL.append(agent.posL[0])
-            yL.append(agent.posL[1])
-            if(agent.immune == True):
-                symbolL.append(".")     # Removed
-                colorL.append("blue")
-            if(agent.infected == True):
-                symbolL.append("^")     # Infections
-                colorL.append("red")
+            #xL.append(agent.posL[0])
+            #yL.append(agent.posL[1])
+            # Susceptible
             if(agent.infected == False and agent.immune == False):
-                symbolL.append("s")     # Susceptible
-                colorL.append("black")
+                sxL.append(agent.posL[0])
+                syL.append(agent.posL[1])
+            # Infected
+            if(agent.infected == True):
+                ixL.append(agent.posL[0])
+                iyL.append(agent.posL[1])
+            # Removed
+            if(agent.immune == True):
+                rxL.append(agent.posL[0])
+                ryL.append(agent.posL[1])
 
             # Susceptible Group - Check if infected
             if(agent.infected == False and (step - agent.start < asymptomaticTime)):
@@ -174,7 +179,7 @@ def main():
             # Infectious Group - Try to infect someone
             for j in range(len(agentL)):
                 # Skip self
-                if(i==j):
+                if(i==j or agentL[j].immune == True or agentL[j].infected == True):
                     continue
                 d = displacement(agent, agentL[j])
                 if(d <= infectDist):
@@ -190,12 +195,18 @@ def main():
 
         # Plot
         fig, ax = plt.subplots()
-        ax.scatter(xL, yL, c=colorL)
+        ax.scatter(sxL, syL, c="black", marker=".", label="Susceptible")
+        ax.scatter(ixL, iyL, c="red",   marker="^", label="Infected")
+        ax.scatter(rxL, ryL, c="blue",  marker="s", label="Removed")
         ax.grid(True)
-        ax.legend()
+        #ax.legend([".", "^", "s"], ["Removed","Infected","Susceptible"], loc="best")
+        ax.legend(loc=1)
         ax.set_xlim((0,1))
         ax.set_ylim((0,1))
-        plt.show()
+        ax.set_title("{:<.2f} days".format(step*dt))
+        #plt.show()
+        plt.savefig("output/{:04d}.png".format(step))
+        plt.close('all')
 
 
 
