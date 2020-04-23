@@ -71,8 +71,8 @@ def move_agent(Agent=None, DeltaT=None):
     DEBUG:
     FUTURE:
     """
-    x = Agent.vL[0] * DeltaT
-    y = Agent.vL[1] * DeltaT
+    x = Agent.vL[0] * DeltaT + Agent.posL[0]
+    y = Agent.vL[1] * DeltaT + Agent.posL[1]
 
     if(x < 0):
         x = -1.0 * x
@@ -193,6 +193,8 @@ def main():
         ax.scatter(xL, yL, c=colorL)
         ax.grid(True)
         ax.legend()
+        ax.set_xlim((0,1))
+        ax.set_ylim((0,1))
         plt.show()
 
 
