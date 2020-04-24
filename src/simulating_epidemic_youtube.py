@@ -127,7 +127,7 @@ def main():
     print("   Start Time : {}".format(time.strftime("%a, %d %b %Y %H:%M:%S ",
                                        time.localtime())),flush=True)
     N     = 100             # Number of Agents
-    nDays = 40              # number of days in simulation
+    nDays = 100              # number of days in simulation
     dt    = 0.25            # number of steps in a day, total steps = nDays / dt
     nStep = int(nDays / dt)
     infectTime = 14 / dt    # Infection time in units of steps
@@ -135,6 +135,9 @@ def main():
     prob  = 0.25            # Probability of infecting agent within infectDist
     infectDist = 0.05       # Distance person must be within to get infected
     agentL= []
+    nSuscL = []             # Number of susceptible per step
+    nInfL = []              # Number of infected per step
+    nRmL = []               # Number of removed per step
 
     # Initialize agents
     for n in range(N):
@@ -213,13 +216,34 @@ def main():
         ax.legend(loc=1)
         ax.set_xlim((0,1))
         ax.set_ylim((0,1))
-        ax.set_title("{:<.2f} days".format(step*dt))
+        # State R0
+        RL = np.asarray([a.nInfect for a in agentL if(a.immune == True)])
+        if(np.sum(RL) > 0):
+            R = np.mean(RL)
+        else:
+            R = 0
+        ax.set_title("{:<.2f} days, R = {:<.2f}".format(step*dt,R))
         #plt.show()
-        plt.savefig("output/{:04d}.png".format(step))
+        plt.savefig("tmp/{:04d}.png".format(step))
         plt.close('all')
 
+        # Record number susceptible, infected and removed
+        nSuscL.append(len(sxL))
+        nInfL.append(len(ixL))
+        nRmL.append(len(rxL))
 
-
+    
+    # Generate plot of SIR vs. Time
+    fig, ax = plt.subplots()
+    ax.plot(range(nStep), nSuscL, c="black", label="Susceptible")
+    ax.plot(range(nStep), nInfL, c="red", label="Infected")
+    ax.plot(range(nStep), nRmL, c="blue", label="Removed")
+    ax.legend(loc=1)
+    ax.xaxis.set_ticks([d*1.0/dt for d in range(nDays) if(d%10 == 0)])
+    ax.set_xticklabels([d for d in range(nDays) if(d%10 == 0)])
+    ax.set_title("Susceptible-Infected-Removed vs. Time".format(step*dt))
+    plt.savefig("tmp/SIR_vs_time.png")
+    plt.close('all')
 
 
 
