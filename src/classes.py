@@ -46,7 +46,7 @@ class AGENT:
         vx = random.uniform(-1,1)/25.0 # Want crossing time to be about 25 steps
         vy = random.uniform(-1,1)/25.0
         self.vL  = [vx, vy]     # Let's assume a unit box, b/c why not?
-        self.quarentine = False
+        self.quarantine = False
 
 
 

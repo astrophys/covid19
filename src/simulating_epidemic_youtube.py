@@ -38,8 +38,8 @@ def print_help(ExitCode):
     FUTURE:
     """
     sys.stderr.write(
-        "python3 ./src/osu_ide_replication_attempt.py [quarentine]\n"
-        "   [quarentine] : optional, puts infected in quarentine 2 days after symptoms  \n"
+        "python3 ./src/osu_ide_replication_attempt.py [quarantine]\n"
+        "   [quarantine] : optional, puts infected in quarantine 2 days after symptoms  \n"
         "      \n"
         "      \n"
         "   After running, create a movie via : "
@@ -81,12 +81,25 @@ def displacement(Agent1=None, Agent2=None):
 
 
 
-def move_agent(Agent=None, AgentL=None, InfectDist=None, Quarentine=None, DeltaT=None):
+def move_agent(Agent=None, AgentL=None, InfectDist=None, quarantine=None, DeltaT=None):
     """
     ARGS:
     RETURN:
     DESCRIPTION:
         Moves agent. Applies implied boundary conditions [0,0,0] -> [1,1,1]
+        If quarantine option used, I do an approximation of reality. 
+
+        Reasons :
+            1. Trying to avoid multiple infected individuals gets logically complicated
+               to code.
+            2. Avoiding the bounds [0,0,0] -> [1,1,1] and trying to avoid an infected
+               individual adds yet another level of logical complexity.
+
+        Solution :  
+            1. I only avoid the first infected individual that I encounter and then I test
+               the bounds.
+
+
     DEBUG:
     FUTURE:
     """
@@ -99,105 +112,107 @@ def move_agent(Agent=None, AgentL=None, InfectDist=None, Quarentine=None, DeltaT
     yf= Agent.vL[1] * DeltaT + Agent.posL[1]
     r = InfectDist      # Radius about quarantined individual
 
-    # Check if quarentined agent nearby.
+    # Check if quarantined agent nearby.
     #   1. Only consider 1st quarantine encountered b/c it could be potentially very
     #      challenging to solve for preventing a susceptible from completely avoiding _all_
     #      quarantined agents.
     #   2. 
     #   3. 
     #
-    if(Quarentine == True):
-        avoidInfect = False
-        while(avoidInfect == False):
-            # displacement, Agent final - initial
-            dfi = np.sqrt((xf-xi)**2 + (yf-yi)**2)
-            # Get line function,     y = mx + b
-            m   = (yf-yi)/(xf-xi)  # Slope of line
-            b   = yf - m*xf        # Pick a point on the line, solve for intercept
+    if(quarantine == True):
+        if(Agent.quarantine == True):
+            return
+        # displacement, Agent final - initial
+        dfi = np.sqrt((xf-xi)**2 + (yf-yi)**2)
+        # Get line function,     y = mx + b
+        m   = (yf-yi)/(xf-xi)  # Slope of line
+        b   = yf - m*xf        # Pick a point on the line, solve for intercept
 
-            for agent in AgentL:
-                # Must be quarentined to avoid
-                if(agent.quarentine == False):
-                    continue
-                xc = agent.posL[0]
-                yc = agent.posL[1]
-                # displ, quarntined - Agent initial
-                dfq = np.sqrt((xc-xf)**2 + (yc-yf)**2)
-                # displ, quarntined - Agent final 
-                diq = np.sqrt((xc-xi)**2 + (yc-yi)**2)
-                # There might be a collision.
-                if(dfq <= r + dfi or diq <= r + dfi):
-                    # Get circle of exclusion line, recall 
-                    #   0 = (x - xc)^2 + (y - yc)^2 - r^2
-                    #   xc,yc = x,yposition of center of circle
-                    def f(x):
-                        y = m*x+b
-                        return( (x-xc)**2 + (y-yc)**2 - r**2)
-                    # Is there a root or crossing?  f(a) * f(b) = -1
-                    if( f(xc-r) * f(xc+r) < 0):
-                        xroots = optimize.fsolve(f, [xc-r, xc+r])
-                        # If there are two roots, which do i pick? Pick closest to Agent
-                        if(len(xroots) == 2):
-                            x1=xroots[0]
-                            y1=f(x1)
-                            d1=displacement(Agent,[x1,y1])
-                            x2=xroots[1]
-                            y2=f(x2)
-                            d2=displacement(Agent,[x2,y2])
-                            # Use 1st root b/c it is closer
-                            if(d1<d2):
-                                x=x1
-                                y=y1
-                            else:
-                                x=x2
-                                y=y2
-                                
-                        elif(len(xroots) == 1):
-                            x = xroot
-                            y =f(x)
-                        else:
-                            exit_with_error("ERROR!!! I don't understand how there can "
-                                            "be more than 2 roots!\n")
-                        rvect = [x-xc, y-yc]
-                        if(np.isclose(np.sqrt(rvect*rvect), r) == False):
-                            exit_with_error("ERROR!!! I don't know how |rvect| != |r|\n")
+        for agent in AgentL:
+            # Must be quarantined to avoid
+            if(agent.quarantine == False):
+                continue
+            xc = agent.posL[0]
+            yc = agent.posL[1]
+            # displ, quarntined - Agent initial
+            dfq = np.sqrt((xc-xf)**2 + (yc-yf)**2)
+            # displ, quarntined - Agent final 
+            diq = np.sqrt((xc-xi)**2 + (yc-yi)**2)
+            # There might be a collision.
+            if(dfq <= r + dfi or diq <= r + dfi):
+                # Get circle of exclusion line, recall 
+                #   0 = (x - xc)^2 + (y - yc)^2 - r^2
+                #   xc,yc = x,yposition of center of circle
+                def f(x):
+                    y = m*x+b
+                    return( (x-xc)**2 + (y-yc)**2 - r**2)
+                # Is there a root or crossing?  f(a) * f(b) = -1
+                # if( f(xc-r) * f(xc+r) < 0):
+                ### With many root solvers, it requires that f(a)*f(b) < 0. However, 
+                ### fsolve doesn't care.  It just needs bounds to look
+                xroots = optimize.fsolve(f, [xc-r, xc+r])
+                # If there are two roots, which do i pick? Pick closest to Agent
+                if(len(xroots) == 2):
+                    x1=xroots[0]
+                    y1=f(x1)
+                    d1=displacement(Agent,[x1,y1])
+                    x2=xroots[1]
+                    y2=f(x2)
+                    d2=displacement(Agent,[x2,y2])
+                    # Use 1st root b/c it is closer
+                    if(d1<d2):
+                        x=x1
+                        y=y1
+                    else:
+                        x=x2
+                        y=y2
+                        
+                elif(len(xroots) == 1):
+                    x = xroot
+                    y =f(x)
+                else:
+                    exit_with_error("ERROR!!! I don't understand how there can "
+                                    "be more than 2 roots!\n")
+                rvect = [x-xc, y-yc]
+                #if(np.isclose(np.sqrt(rvect[0]*rvect[0]+rvect[1]*rvect[1]), r) == False):
+                #    exit_with_error("ERROR!!! I don't know how |rvect| != |r|\n")
 
-                        # Now get angle between rvector and velocity vector
-                        theta = np.arccos( (vx*rvect[0] + vy*rvect[1]) /
-                                           ((vx**2 + vy**2)*(rvect[0]**2 + rvect[1]**2)))
-                        # Angle of reflection w/r/t to the tangent line on circle 
-                        phi = np.pi - theta
-                        vx = v * np.sin(phi)
-                        vy = v * np.cos(phi)
-                        xf = vx * DeltaT + xi
-                        yf = vy * DeltaT + yi
-                        break
-                    else: 
-                        continue
-            avoidInfect = True
-    else:
-        if(xf < 0):
-            xf = -1.0 * xf
-            Agent.vL[0] = -1.0 * Agent.vL[0]
-        if(yf < 0):
-            yf = -1.0 * yf
-            Agent.vL[1] = -1.0 * Agent.vL[1]
-        if(xf > 1.0):
-            d = xf - 1.0
-            xf = xf - d
-            Agent.vL[0] = -1.0 * Agent.vL[0]
-        if(yf > 1.0):
-            d = yf - 1.0
-            yf= yf - d
-            Agent.vL[1] = -1.0 * Agent.vL[1]
-        # Adjust Position
-        Agent.posL[0] = xf
-        Agent.posL[1] = yf
-        # Adjust velocity
-        dvx = random.uniform(-1,1)/100.0 # Want crossing time to be about 25 steps
-        dvy = random.uniform(-1,1)/100.0
-        Agent.posL[0] += dvx
-        Agent.posL[1] += dvy
+                # Now get angle between rvector and velocity vector
+                theta = np.arccos( (vx*rvect[0] + vy*rvect[1]) /
+                                   np.sqrt((vx**2 + vy**2)*(rvect[0]**2 + rvect[1]**2)))
+                # Angle of reflection w/r/t to the tangent line on circle 
+                phi = np.pi - theta
+                vx = v * np.sin(phi)
+                vy = v * np.cos(phi)
+                xf = vx * DeltaT + xi
+                yf = vy * DeltaT + yi
+                break
+                #else: 
+                #    continue
+
+    # Check bounds
+    if(xf < 0):
+        xf = -1.0 * xf
+        Agent.vL[0] = -1.0 * Agent.vL[0]
+    if(yf < 0):
+        yf = -1.0 * yf
+        Agent.vL[1] = -1.0 * Agent.vL[1]
+    if(xf > 1.0):
+        d = xf - 1.0
+        xf = xf - d
+        Agent.vL[0] = -1.0 * Agent.vL[0]
+    if(yf > 1.0):
+        d = yf - 1.0
+        yf= yf - d
+        Agent.vL[1] = -1.0 * Agent.vL[1]
+    # Adjust Position
+    Agent.posL[0] = xf
+    Agent.posL[1] = yf
+    # Adjust velocity
+    dvx = random.uniform(-1,1)/100.0 # Want crossing time to be about 25 steps
+    dvy = random.uniform(-1,1)/100.0
+    Agent.vL[0] += dvx
+    Agent.vL[1] += dvy
     
 
 def main():
@@ -224,7 +239,7 @@ def main():
         print_help(1)
     elif(nArg == 1):
         quarantine = False
-    elif(nArg == 2 and sys.argv[1] == "quarentine"):
+    elif(nArg == 2 and sys.argv[1] == "quarantine"):
         quarantine = True
 
     startTime = time.time()
@@ -263,8 +278,8 @@ def main():
         rxL = []    # Removed xL
         ryL = []
         ### Only if quarentining infected individuals
-        if(quarentine == True):
-            qxL = []    # quarentine
+        if(quarantine == True):
+            qxL = []    # quarantine
             qyL = []
 
         for i in range(len(agentL)):
@@ -286,16 +301,17 @@ def main():
                 ryL.append(agent.posL[1])
 
             ### Only if quarentining infected individuals
-            if(quarentine == True):
-                if((step - agent.start - asymptomaticTime >= 2)):
-                    agent.quarentine = True
-                if(agent.quarentine == True):
+            if(quarantine == True):
+                # Quarentine after 2 days of infeciousness
+                if((agent.infected == True and step - agent.start - asymptomaticTime >= 2)):
+                    agent.quarantine = True
+                if(agent.quarantine == True):
                     qxL.append(agent.posL[0])
                     qyL.append(agent.posL[1])
-                    continue
+                    # continue
 
             # Move
-            move_agent(agent,agentL,dt)
+            move_agent(agent,agentL,infectDist,quarantine,dt)
 
             # Susceptible Group - Check if infected
             if(agent.infected == False or (step - agent.start < asymptomaticTime)):
@@ -318,6 +334,8 @@ def main():
             if(step - agent.start > infectTime):
                 agent.infected = False
                 agent.immune = True
+                if(quarantine == True):
+                    agent.quarantine = False
 
         # Plot
         fig, ax = plt.subplots()
