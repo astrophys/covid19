@@ -308,7 +308,7 @@ def main():
                 if(len(ixL) == critMass):      # Critical mass to quarantine
                     startQuarantine = True
                 # Quarentine after 2 days of infeciousness
-                if((agent.infected == True and step - agent.start - asymptomaticTime >= 2)
+                if((agent.infected == True and step - agent.start - asymptomaticTime >= 2/dt)
                    and startQuarantine == True
                 ):
                     agent.quarantine = True
