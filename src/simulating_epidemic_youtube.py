@@ -119,9 +119,10 @@ def move_agent(Agent=None, AgentL=None, InfectDist=None, quarantine=None, DeltaT
     #   2. 
     #   3. 
     #
-    if(quarantine == True):
-        if(Agent.quarantine == True):
-            return
+    if(Agent.quarantine == True):
+        return
+
+    if(quarantine == True and Agent.infected == False):
         # displacement, Agent final - initial
         dfi = np.sqrt((xf-xi)**2 + (yf-yi)**2)
         # Get line function,     y = mx + b
@@ -246,18 +247,20 @@ def main():
     print("{} \n".format(sys.argv),flush=True)
     print("   Start Time : {}".format(time.strftime("%a, %d %b %Y %H:%M:%S ",
                                        time.localtime())),flush=True)
-    N     = 100             # Number of Agents
-    nDays = 100              # number of days in simulation
+    N     = 300             # Number of Agents
+    nDays = 100             # number of days in simulation
     dt    = 0.25            # number of steps in a day, total steps = nDays / dt
     nStep = int(nDays / dt)
     infectTime = 14 / dt    # Infection time in units of steps
     asymptomaticTime = 5 / dt    # Infection time in units of steps
     prob  = 0.25            # Probability of infecting agent within infectDist
     infectDist = 0.05       # Distance person must be within to get infected
+    critMass = 30           # Number of people before instituting a quarantine
     agentL= []
     nSuscL = []             # Number of susceptible per step
     nInfL = []              # Number of infected per step
     nRmL = []               # Number of removed per step
+    startQuarantine = False
 
     # Initialize agents
     for n in range(N):
@@ -302,8 +305,12 @@ def main():
 
             ### Only if quarentining infected individuals
             if(quarantine == True):
+                if(len(ixL) == critMass):      # Critical mass to quarantine
+                    startQuarantine = True
                 # Quarentine after 2 days of infeciousness
-                if((agent.infected == True and step - agent.start - asymptomaticTime >= 2)):
+                if((agent.infected == True and step - agent.start - asymptomaticTime >= 2)
+                   and startQuarantine == True
+                ):
                     agent.quarantine = True
                 if(agent.quarantine == True):
                     qxL.append(agent.posL[0])
@@ -313,14 +320,25 @@ def main():
             # Move
             move_agent(agent,agentL,infectDist,quarantine,dt)
 
+            # 'Removed' Group. If survived, adjust time. 
+            if(step - agent.start > infectTime and agent.infected == True):
+                agent.infected = False
+                agent.immune = True
+                if(quarantine == True):
+                    agent.quarantine = False
+
             # Susceptible Group - Check if infected
-            if(agent.infected == False or (step - agent.start < asymptomaticTime)):
+            if(agent.infected == False or (step - agent.start < asymptomaticTime) or
+               agent.quarantine == True
+            ):
                 continue
 
             # Infectious Group - Try to infect someone
             for j in range(len(agentL)):
                 # Skip self
-                if(i==j or agentL[j].immune == True or agentL[j].infected == True):
+                if(i==j or agentL[j].immune == True or agentL[j].infected == True or
+                   agentL[j].quarantine == True
+                ):
                     continue
                 d = displacement(agent, agentL[j])
                 if(d <= infectDist):
@@ -329,13 +347,6 @@ def main():
                         agentL[j].infected=True
                         agentL[j].start = step
                         agent.nInfect += 1
-
-             # 'Removed' Group. If survived, adjust time. 
-            if(step - agent.start > infectTime):
-                agent.infected = False
-                agent.immune = True
-                if(quarantine == True):
-                    agent.quarantine = False
 
         # Plot
         fig, ax = plt.subplots()
@@ -382,6 +393,9 @@ def main():
     plt.savefig("tmp/SIR_vs_time.png")
     plt.close('all')
 
+    print("Ended : %s"%(time.strftime("%D:%H:%M:%S")))
+    print("Run Time : {:.4f} h".format((time.time() - startTime)/3600.0))
+    sys.exit(0)
 
 
 if __name__ == "__main__":
