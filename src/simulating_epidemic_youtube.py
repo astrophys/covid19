@@ -81,9 +81,15 @@ def displacement(Agent1=None, Agent2=None):
 
 
 
-def move_agent(Agent=None, AgentL=None, InfectDist=None, quarantine=None, DeltaT=None):
+def move_agent(Agent=None, AgentL=None, InfectDist=None, Quarantine=None, DeltaT=None):
     """
     ARGS:
+        Agent      : AGENT, The AGENT whose trajectory we are computing
+        AgentL     : List of AGENTs, Used for avoiding quarantined AGENTs
+        InfectDist : Float, Infectiousness distance. Used as radius around
+                     quarantined, infected AGENTs
+        Quarantine : Boolean, do we quarantine infected agents?
+        DeltaT     : Time interval.
     RETURN:
     DESCRIPTION:
         Moves agent. Applies implied boundary conditions [0,0,0] -> [1,1,1]
@@ -118,11 +124,12 @@ def move_agent(Agent=None, AgentL=None, InfectDist=None, quarantine=None, DeltaT
     #      quarantined agents.
     #   2. 
     #   3. 
-    #
+
+    # Quarantined agents can't move.
     if(Agent.quarantine == True):
         return
 
-    if(quarantine == True and Agent.infected == False):
+    if(Quarantine == True and Agent.infected == False):
         # displacement, Agent final - initial
         dfi = np.sqrt((xf-xi)**2 + (yf-yi)**2)
         # Get line function,     y = mx + b
@@ -147,8 +154,6 @@ def move_agent(Agent=None, AgentL=None, InfectDist=None, quarantine=None, DeltaT
                 def f(x):
                     y = m*x+b
                     return( (x-xc)**2 + (y-yc)**2 - r**2)
-                # Is there a root or crossing?  f(a) * f(b) = -1
-                # if( f(xc-r) * f(xc+r) < 0):
                 ### With many root solvers, it requires that f(a)*f(b) < 0. However, 
                 ### fsolve doesn't care.  It just needs bounds to look
                 xroots = optimize.fsolve(f, [xc-r, xc+r])
@@ -255,7 +260,7 @@ def main():
     asymptomaticTime = 5 / dt    # Infection time in units of steps
     prob  = 0.25            # Probability of infecting agent within infectDist
     infectDist = 0.05       # Distance person must be within to get infected
-    critMass = 30           # Number of people before instituting a quarantine
+    critMass = 2            # Number of people before instituting a quarantine
     agentL= []
     nSuscL = []             # Number of susceptible per step
     nInfL = []              # Number of infected per step
@@ -269,6 +274,7 @@ def main():
 
     # Infect 1 agent
     agentL[0].infected=True
+    agentL[0].start=0
 
 
     # Simulation - O(N**2)
@@ -308,7 +314,7 @@ def main():
                 if(len(ixL) == critMass):      # Critical mass to quarantine
                     startQuarantine = True
                 # Quarentine after 2 days of infeciousness
-                if((agent.infected == True and step - agent.start - asymptomaticTime >= 2/dt)
+                if((agent.infected == True and step - agent.start - asymptomaticTime >=1/dt)
                    and startQuarantine == True
                 ):
                     agent.quarantine = True
