@@ -129,72 +129,74 @@ def move_agent(Agent=None, AgentL=None, InfectDist=None, Quarantine=None, DeltaT
     if(Agent.quarantine == True):
         return
 
-    if(Quarantine == True and Agent.infected == False):
-        # displacement, Agent final - initial
-        dfi = np.sqrt((xf-xi)**2 + (yf-yi)**2)
-        # Get line function,     y = mx + b
-        m   = (yf-yi)/(xf-xi)  # Slope of line
-        b   = yf - m*xf        # Pick a point on the line, solve for intercept
+    #if(Quarantine == True and Agent.infected == False):
+    #    # displacement, Agent final - initial
+    #    dfi = np.sqrt((xf-xi)**2 + (yf-yi)**2)
+    #    # Get line function,     y = mx + b
+    #    m   = (yf-yi)/(xf-xi)  # Slope of line
+    #    b   = yf - m*xf        # Pick a point on the line, solve for intercept
 
-        for agent in AgentL:
-            # Must be quarantined to avoid
-            if(agent.quarantine == False):
-                continue
-            xc = agent.posL[0]
-            yc = agent.posL[1]
-            # displ, quarntined - Agent initial
-            dfq = np.sqrt((xc-xf)**2 + (yc-yf)**2)
-            # displ, quarntined - Agent final 
-            diq = np.sqrt((xc-xi)**2 + (yc-yi)**2)
-            # There might be a collision.
-            if(dfq <= r + dfi or diq <= r + dfi):
-                # Get circle of exclusion line, recall 
-                #   0 = (x - xc)^2 + (y - yc)^2 - r^2
-                #   xc,yc = x,yposition of center of circle
-                def f(x):
-                    y = m*x+b
-                    return( (x-xc)**2 + (y-yc)**2 - r**2)
-                ### With many root solvers, it requires that f(a)*f(b) < 0. However, 
-                ### fsolve doesn't care.  It just needs bounds to look
-                xroots = optimize.fsolve(f, [xc-r, xc+r])
-                # If there are two roots, which do i pick? Pick closest to Agent
-                if(len(xroots) == 2):
-                    x1=xroots[0]
-                    y1=f(x1)
-                    d1=displacement(Agent,[x1,y1])
-                    x2=xroots[1]
-                    y2=f(x2)
-                    d2=displacement(Agent,[x2,y2])
-                    # Use 1st root b/c it is closer
-                    if(d1<d2):
-                        x=x1
-                        y=y1
-                    else:
-                        x=x2
-                        y=y2
-                        
-                elif(len(xroots) == 1):
-                    x = xroot
-                    y =f(x)
-                else:
-                    exit_with_error("ERROR!!! I don't understand how there can "
-                                    "be more than 2 roots!\n")
-                rvect = [x-xc, y-yc]
-                #if(np.isclose(np.sqrt(rvect[0]*rvect[0]+rvect[1]*rvect[1]), r) == False):
-                #    exit_with_error("ERROR!!! I don't know how |rvect| != |r|\n")
+    #    for agent in AgentL:
+    #        # Must be quarantined to avoid
+    #        if(agent.quarantine == False):
+    #            continue
+    #        xc = agent.posL[0]
+    #        yc = agent.posL[1]
+    #        # displ, quarntined - Agent final 
+    #        dfq = np.sqrt((xc-xf)**2 + (yc-yf)**2)
+    #        # displ, quarntined - Agent initial
+    #        diq = np.sqrt((xc-xi)**2 + (yc-yi)**2)
+    #        # There might be a collision -
+    #        #   It is possible that both dfq and diq are
+    #        #   outside of radius, yet the trajectory passes through it
+    #        #if(dfq <= r + dfi or diq <= r + dfi):
+    #        # Get circle of exclusion line, recall 
+    #        #   0 = (x - xc)^2 + (y - yc)^2 - r^2
+    #        #   xc,yc = x,yposition of center of circle
+    #        def f(x):
+    #            y = m*x+b
+    #            return( (x-xc)**2 + (y-yc)**2 - r**2)
+    #        ### With many root solvers, it requires that f(a)*f(b) < 0. However, 
+    #        ### fsolve doesn't care.  It just needs bounds to look
+    #        xroots = optimize.fsolve(f, [xc-r, xc+r])
+    #        # If there are two roots, which do i pick? Pick closest to Agent
+    #        if(len(xroots) == 2):
+    #            x1=xroots[0]
+    #            y1=f(x1)
+    #            d1=displacement(Agent,[x1,y1])
+    #            x2=xroots[1]
+    #            y2=f(x2)
+    #            d2=displacement(Agent,[x2,y2])
+    #            # Use 1st root b/c it is closer
+    #            if(d1<d2):
+    #                x=x1
+    #                y=y1
+    #            else:
+    #                x=x2
+    #                y=y2
+    #                
+    #        elif(len(xroots) == 1):
+    #            x = xroot
+    #            y =f(x)
+    #        else:
+    #            exit_with_error("ERROR!!! I don't understand how there can "
+    #                            "be more than 2 roots!\n")
+    #        rvect = [x-xc, y-yc]
+    #        #if(np.isclose(np.sqrt(rvect[0]*rvect[0]+rvect[1]*rvect[1]), r) == False):
+    #        #    exit_with_error("ERROR!!! I don't know how |rvect| != |r|\n")
 
-                # Now get angle between rvector and velocity vector
-                theta = np.arccos( (vx*rvect[0] + vy*rvect[1]) /
-                                   np.sqrt((vx**2 + vy**2)*(rvect[0]**2 + rvect[1]**2)))
-                # Angle of reflection w/r/t to the tangent line on circle 
-                phi = np.pi - theta
-                vx = v * np.sin(phi)
-                vy = v * np.cos(phi)
-                xf = vx * DeltaT + xi
-                yf = vy * DeltaT + yi
-                break
-                #else: 
-                #    continue
+    #        # Now get angle between rvector and velocity vector
+    #        theta = np.arccos( (vx*rvect[0] + vy*rvect[1]) /
+    #                           np.sqrt((vx**2 + vy**2)*(rvect[0]**2 + rvect[1]**2)))
+    #        # Angle of reflection w/r/t to the tangent line on circle 
+    #        phi = np.pi - theta
+    #        vx = v * np.sin(phi)
+    #        vy = v * np.cos(phi)
+    #        xf = vx * DeltaT + xi
+    #        yf = vy * DeltaT + yi
+    #        break
+    #        #else: 
+    #        #    continue
 
     # Check bounds
     if(xf < 0):
