@@ -121,7 +121,9 @@ def main():
             if(dataV[d] > 0):
                 dataD[country]=dataV[d:]
                 break
-   
+    usDailyDeathA=[dataD['us'][i+1] - dataD['us'][i] for i in range(len(dataD['us'])-1)]
+    print("\nDaily deaths (last 10 days) in US\n\t{}\n".format(usDailyDeathA[-10:]))
+    print("Total deaths (last 10 days) in US\n\t{}\n".format(dataD['us'][-10:]))
     fig, ax = plt.subplots(1,1)
     ax.set_title("Covid-19 Deaths per country (ending {})".format(lastDate))
 
