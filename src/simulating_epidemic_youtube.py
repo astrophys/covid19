@@ -129,74 +129,107 @@ def move_agent(Agent=None, AgentL=None, InfectDist=None, Quarantine=None, DeltaT
     if(Agent.quarantine == True):
         return
 
-    #if(Quarantine == True and Agent.infected == False):
-    #    # displacement, Agent final - initial
-    #    dfi = np.sqrt((xf-xi)**2 + (yf-yi)**2)
-    #    # Get line function,     y = mx + b
-    #    m   = (yf-yi)/(xf-xi)  # Slope of line
-    #    b   = yf - m*xf        # Pick a point on the line, solve for intercept
+    if(Quarantine == True and Agent.infected == False):
+        # displacement, Agent final - initial
+        dfi = np.sqrt((xf-xi)**2 + (yf-yi)**2)
+        # Get line function,     y = mx + b
+        m   = (yf-yi)/(xf-xi)  # Slope of line
+        b   = yf - m*xf        # Pick a point on the line, solve for intercept
 
-    #    for agent in AgentL:
-    #        # Must be quarantined to avoid
-    #        if(agent.quarantine == False):
-    #            continue
-    #        xc = agent.posL[0]
-    #        yc = agent.posL[1]
-    #        # displ, quarntined - Agent final 
-    #        dfq = np.sqrt((xc-xf)**2 + (yc-yf)**2)
-    #        # displ, quarntined - Agent initial
-    #        diq = np.sqrt((xc-xi)**2 + (yc-yi)**2)
-    #        # There might be a collision -
-    #        #   It is possible that both dfq and diq are
-    #        #   outside of radius, yet the trajectory passes through it
-    #        #if(dfq <= r + dfi or diq <= r + dfi):
-    #        # Get circle of exclusion line, recall 
-    #        #   0 = (x - xc)^2 + (y - yc)^2 - r^2
-    #        #   xc,yc = x,yposition of center of circle
-    #        def f(x):
-    #            y = m*x+b
-    #            return( (x-xc)**2 + (y-yc)**2 - r**2)
-    #        ### With many root solvers, it requires that f(a)*f(b) < 0. However, 
-    #        ### fsolve doesn't care.  It just needs bounds to look
-    #        xroots = optimize.fsolve(f, [xc-r, xc+r])
-    #        # If there are two roots, which do i pick? Pick closest to Agent
-    #        if(len(xroots) == 2):
-    #            x1=xroots[0]
-    #            y1=f(x1)
-    #            d1=displacement(Agent,[x1,y1])
-    #            x2=xroots[1]
-    #            y2=f(x2)
-    #            d2=displacement(Agent,[x2,y2])
-    #            # Use 1st root b/c it is closer
-    #            if(d1<d2):
-    #                x=x1
-    #                y=y1
-    #            else:
-    #                x=x2
-    #                y=y2
-    #                
-    #        elif(len(xroots) == 1):
-    #            x = xroot
-    #            y =f(x)
-    #        else:
-    #            exit_with_error("ERROR!!! I don't understand how there can "
-    #                            "be more than 2 roots!\n")
-    #        rvect = [x-xc, y-yc]
-    #        #if(np.isclose(np.sqrt(rvect[0]*rvect[0]+rvect[1]*rvect[1]), r) == False):
-    #        #    exit_with_error("ERROR!!! I don't know how |rvect| != |r|\n")
+        for agent in AgentL:
+            # Must be quarantined to avoid
+            if(agent.quarantine == False):
+                continue
+            xc = agent.posL[0]
+            yc = agent.posL[1]
+            # displ, quarntined - Agent final 
+            dfq = np.sqrt((xc-xf)**2 + (yc-yf)**2)
+            # displ, quarntined - Agent initial
+            diq = np.sqrt((xc-xi)**2 + (yc-yi)**2)
+            # There might be a collision -
+            #   It is possible that both dfq and diq are
+            #   outside of radius, yet the trajectory passes through it
 
-    #        # Now get angle between rvector and velocity vector
-    #        theta = np.arccos( (vx*rvect[0] + vy*rvect[1]) /
-    #                           np.sqrt((vx**2 + vy**2)*(rvect[0]**2 + rvect[1]**2)))
-    #        # Angle of reflection w/r/t to the tangent line on circle 
-    #        phi = np.pi - theta
-    #        vx = v * np.sin(phi)
-    #        vy = v * np.cos(phi)
-    #        xf = vx * DeltaT + xi
-    #        yf = vy * DeltaT + yi
-    #        break
-    #        #else: 
-    #        #    continue
+            #### Maybe easier if we just say if dfi < 3*r and dfq < 3*r 
+            if(dfq <= 2*r or diq <= 2*r):       # This is gross and imprecise.
+                # Get circle of exclusion line, recall 
+                #   0 = (x - xc)^2 + (y - yc)^2 - r^2
+                #   xc,yc = x,yposition of center of circle
+                def f(x):
+                    y = m*x+b
+                    return( (x-xc)**2 + (y-yc)**2 - r**2)
+                ### With many root solvers, it requires that f(a)*f(b) < 0. However, 
+                ### fsolve doesn't care.  It just needs bounds to look
+                xroots = optimize.fsolve(f, [xc-r, xc+r])
+                # If there are two roots, which do i pick? Pick closest to Agent
+                if(len(xroots) == 2):
+                    x1=xroots[0]
+                    y1=f(x1)
+                    d1=displacement(Agent,[x1,y1])
+                    x2=xroots[1]
+                    y2=f(x2)
+                    d2=displacement(Agent,[x2,y2])
+                    # Use 1st root b/c it is closer
+                    if(d1<d2):
+                        x=x1
+                        y=y1
+                    else:
+                        x=x2
+                        y=y2
+                        
+                elif(len(xroots) == 1):
+                    x = xroot
+                    y =f(x)
+                else:
+                    exit_with_error("ERROR!!! I don't understand how there can "
+                                    "be more than 2 roots!\n")
+                rx = x-xc
+                ry = y-yc
+                rvect = [rx, ry]
+                # Find line perpendicular to rvect, i.e. tangent to the circle, call it 't'
+                # Let :
+                #       t     = a  \hat(i) + b  \hat(j)
+                #       rvect = rx \hat(i) + ry \hat(j)
+                # Solve equation : 
+                #       t \dot rvect = 0    
+                #       (a \hat(i) + b \hat(j))  \dot (rx \hat(i) + ry \hat(j))  = 0
+                #       a * rx + b * ry = 0
+                #       a = -(b * ry) / rx
+                ### Verticle line
+                if(rx == 0):
+                    a = 0
+                    b = 1
+                    alpha = np.pi / 2   # 90deg, Angle between tangent and horizontal
+                ### Horizontal line
+                elif(ry == 0):
+                    a = 1
+                    b = 0
+                    alpha = 0           # 0deg, Angle between tangent and horizontal
+                ### Exerything else
+                else:
+                    b = 1
+                    a = -b * ry / rx
+                    alpha = np.arctan(b/a) # 0deg, Angle between tangent and horizontal
+                    if(np.isnan(alpha)):
+                        exit_with_error("ERROR!!! np.arctan({}/{}) == nan\n".format(b/a))
+                
+                #if(np.isclose(np.sqrt(rvect[0]*rvect[0]+rvect[1]*rvect[1]), r) == False):
+                #    exit_with_error("ERROR!!! I don't know how |rvect| != |r|\n")
+
+                # Now get angle between rvector and velocity vector
+                theta = np.arccos( (vx*rvect[0] + vy*rvect[1]) /
+                                   np.sqrt((vx**2 + vy**2)*(rvect[0]**2 + rvect[1]**2)))
+                # Angle of reflection w/r/t to the tangent line on circle 
+                phi = theta - np.pi / 2.0
+                #phi = theta
+                vx = v * np.sin(phi) * np.cos(alpha)
+                vy = v * np.cos(phi * np.sin(alpha))
+                #print("{:<.5f} {:<.5f} {:<.5f}".format(vx,vy,phi))
+                xf = vx * DeltaT + xi
+                yf = vy * DeltaT + yi
+                break
+                #else: 
+                #    continue
 
     # Check bounds
     if(xf < 0):
@@ -254,13 +287,13 @@ def main():
     print("{} \n".format(sys.argv),flush=True)
     print("   Start Time : {}".format(time.strftime("%a, %d %b %Y %H:%M:%S ",
                                        time.localtime())),flush=True)
-    N     = 300             # Number of Agents
-    nDays = 100             # number of days in simulation
+    N     = 100             # Number of Agents
+    nDays = 50             # number of days in simulation
     dt    = 0.25            # number of steps in a day, total steps = nDays / dt
     nStep = int(nDays / dt)
     infectTime = 14 / dt    # Infection time in units of steps
     asymptomaticTime = 5 / dt    # Infection time in units of steps
-    prob  = 0.25            # Probability of infecting agent within infectDist
+    prob  = 0.5            # Probability of infecting agent within infectDist
     infectDist = 0.05       # Distance person must be within to get infected
     critMass = 2            # Number of people before instituting a quarantine
     agentL= []
