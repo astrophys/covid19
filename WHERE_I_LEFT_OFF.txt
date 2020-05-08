@@ -8,3 +8,4 @@ TO DO:
 4. Change AGENT class to use SIR labels, susceptible, infected, recovered.
 
 5. To avoid contact with infected radius, vx ends up _always_ being positive.  Why?
+6. Use debugger and test a couple of cases of scattering where I know an analytic solution.

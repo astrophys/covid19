@@ -126,7 +126,7 @@ def move_agent(Agent=None, AgentL=None, InfectDist=None, Quarantine=None, DeltaT
     #   3. 
 
     # Quarantined agents can't move.
-    if(Agent.quarantine == True):
+    if(Agent.quarantine == True and Agent.immune == True):
         return
 
     if(Quarantine == True and Agent.infected == False):
@@ -151,7 +151,7 @@ def move_agent(Agent=None, AgentL=None, InfectDist=None, Quarantine=None, DeltaT
             #   outside of radius, yet the trajectory passes through it
 
             #### Maybe easier if we just say if dfi < 3*r and dfq < 3*r 
-            if(dfq <= 2*r or diq <= 2*r):       # This is gross and imprecise.
+            if(dfq <= r or diq <= r):       # This is gross and imprecise.
                 # Get circle of exclusion line, recall 
                 #   0 = (x - xc)^2 + (y - yc)^2 - r^2
                 #   xc,yc = x,yposition of center of circle
@@ -164,10 +164,10 @@ def move_agent(Agent=None, AgentL=None, InfectDist=None, Quarantine=None, DeltaT
                 # If there are two roots, which do i pick? Pick closest to Agent
                 if(len(xroots) == 2):
                     x1=xroots[0]
-                    y1=f(x1)
+                    y1= m * x1 + b
                     d1=displacement(Agent,[x1,y1])
                     x2=xroots[1]
-                    y2=f(x2)
+                    y2= m * x2 + b
                     d2=displacement(Agent,[x2,y2])
                     # Use 1st root b/c it is closer
                     if(d1<d2):
@@ -179,7 +179,7 @@ def move_agent(Agent=None, AgentL=None, InfectDist=None, Quarantine=None, DeltaT
                         
                 elif(len(xroots) == 1):
                     x = xroot
-                    y =f(x)
+                    y = m * xroot + b
                 else:
                     exit_with_error("ERROR!!! I don't understand how there can "
                                     "be more than 2 roots!\n")
@@ -227,6 +227,8 @@ def move_agent(Agent=None, AgentL=None, InfectDist=None, Quarantine=None, DeltaT
                 #print("{:<.5f} {:<.5f} {:<.5f}".format(vx,vy,phi))
                 xf = vx * DeltaT + xi
                 yf = vy * DeltaT + yi
+                Agent.vL[0] = vx
+                Agent.vL[1] = vy
                 break
                 #else: 
                 #    continue
@@ -287,15 +289,15 @@ def main():
     print("{} \n".format(sys.argv),flush=True)
     print("   Start Time : {}".format(time.strftime("%a, %d %b %Y %H:%M:%S ",
                                        time.localtime())),flush=True)
-    N     = 100             # Number of Agents
-    nDays = 50             # number of days in simulation
+    N     = 200             # Number of Agents
+    nDays = 100             # number of days in simulation
     dt    = 0.25            # number of steps in a day, total steps = nDays / dt
     nStep = int(nDays / dt)
     infectTime = 14 / dt    # Infection time in units of steps
     asymptomaticTime = 5 / dt    # Infection time in units of steps
-    prob  = 0.5            # Probability of infecting agent within infectDist
+    prob  = 0.5             # Probability of infecting agent within infectDist
     infectDist = 0.05       # Distance person must be within to get infected
-    critMass = 2            # Number of people before instituting a quarantine
+    critMass = 1            # Number of people before instituting a quarantine
     agentL= []
     nSuscL = []             # Number of susceptible per step
     nInfL = []              # Number of infected per step
@@ -353,6 +355,8 @@ def main():
                    and startQuarantine == True
                 ):
                     agent.quarantine = True
+                    agent.vL[0] = 0
+                    agent.vL[1] = 0
                 if(agent.quarantine == True):
                     qxL.append(agent.posL[0])
                     qyL.append(agent.posL[1])
