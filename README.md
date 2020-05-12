@@ -29,7 +29,7 @@ This repo does several things.
 
     `ffmpeg -framerate 4 -pattern_type glob -i 'output/*.png' -c:v libx264 out.mp4`
 
-[//]: # 5. Mention Runge-Kutta integration of DE's from OSU/IDE paper
+<!-- 5. Mention Runge-Kutta integration of DE's from OSU/IDE paper -->
 
 #### References:
 1. [Strategies for mitigating an influenza pandemic](https://www.nature.com/articles/nature04795#Sec2)
