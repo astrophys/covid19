@@ -38,7 +38,7 @@ def print_help(ExitCode):
     FUTURE:
     """
     sys.stderr.write(
-        "python3 ./src/osu_ide_replication_attempt.py [quarantine]\n"
+        "python3 ./src/simulating_agent_model_2D.py [quarantine]\n"
         "   [quarantine] : optional, puts infected in quarantine symptoms present\n"
         "      \n"
         "      \n"

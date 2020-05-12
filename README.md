@@ -59,7 +59,7 @@ python src/plot_country_deaths.py
 4. I created a fun little toy program that emulates the type of plotting / simulations done in [Simulating an Epidemic - YouTube](https://www.youtube.com/watch?v=gxAaO2rsdIs). 
 
 ```
-python3 ./src/osu_ide_replication_attempt.py [quarantine]
+python3 ./src/simulating_agent_model_2D.py [quarantine]
    [quarantine] : optional, puts infected in quarantine symptoms present
 
 
