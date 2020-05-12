@@ -19,7 +19,7 @@ This repo does several things.
 
 3. It plots several countries' death data (see [John Hopkins' data](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series)) showing 1 day and 3 day doubling times. Motivated by [NYT plot](https://www.nytimes.com/interactive/2020/03/21/upshot/coronavirus-deaths-by-country.html).  E.g.
 
-    `python src/plot_country_deaths.py`
+    `python src/plot_country_deaths.py [quarantine]`
 
 4. I created a fun little toy program that emulates the type of plotting / simulations done in [Simulating an Epidemic - YouTube](https://www.youtube.com/watch?v=gxAaO2rsdIs). 
 
@@ -29,7 +29,7 @@ This repo does several things.
 
     `ffmpeg -framerate 4 -pattern_type glob -i 'output/*.png' -c:v libx264 out.mp4`
 
-5. Mention Runge-Kutta integration of DE's from OSU/IDE paper
+[//]: # 5. Mention Runge-Kutta integration of DE's from OSU/IDE paper
 
 #### References:
 1. [Strategies for mitigating an influenza pandemic](https://www.nature.com/articles/nature04795#Sec2)
