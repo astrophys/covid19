@@ -26,12 +26,12 @@ python3 ./src/plot_italy_data.py option_to_plot italy_data_file [log-lin] [index
            'total_cases'   : Total Cases
            'swabs'         : Swabs
       italy_data_file : the path to the dpc-covid19-ita-andamento-nazionale.csv
-      [log-lin]       : optional, plot y axis in natural log, if straight line
-                        then experiencing exponential growth. If not specified,
-                        linear assumed
-      [slice_index]   : for fitting, e.g.
-                        if = -10, it will fit the last 10 points
-                        if = 10, it will fit the first 10 points
+      [log-lin or lin-lin] : optional, plot y axis in natural log, if straight line
+                             then experiencing exponential growth. If not specified,
+                             log-lin assumed
+      [slice_index]        : for fitting, e.g.
+                             if = -10, it will fit the last 10 points
+                             if = 10, it will fit the first 10 points
 ```
 
 
