@@ -43,12 +43,12 @@ def print_help(ExitCode):
         "           'total_cases'   : Total Cases\n"
         "           'swabs'         : Swabs\n"
         "      italy_data_file : the path to the dpc-covid19-ita-andamento-nazionale.csv\n"
-        "      [log-lin] : optional, plot y axis in natural log, if straight line \n"
-        "              then experiencing exponential growth. If not specified, \n"
-        "              linear assumed\n"
-        "      [slice_index]   : for fitting, e.g. \n"
-        "                           if = -10, it will fit the last 10 points\n"
-        "                           if = 10, it will fit the first 10 points\n"
+        "      [log-lin]     : optional, plot y axis in natural log, if straight line \n"
+        "                      then experiencing exponential growth. If not specified, \n"
+        "                      linear assumed\n"
+        "      [slice_index] : optional, for fitting, e.g. \n"
+        "                      if = -10, it will fit the last 10 points\n"
+        "                      if = 10, it will fit the first 10 points\n"
         "      \n"
         "      \n"
         "   To Run: \n"
@@ -77,12 +77,15 @@ def main():
         print_help(1)
     if(nArg >= 4 and sys.argv[3] == "log-lin"):
         plotType = "log-lin"       # Straight line equals exponential growth
-    elif(nArg >= 4 and sys.arg[3] == "lin-lin"):
-        exit_with_error("ERROR!! Invalid option for plottype\n")
-    #else:
-    #    plotType = "lin-lin"       # Straight line equals linear growth
+    elif(nArg >= 4 and sys.argv[3] == "lin-lin"):
+        plotType = "lin-lin"
+        #exit_with_error("ERROR!! Invalid option for plottype, not yet implemented\n")
+    else:
+        plotType = "log-lin"       # Straight line equals linear growth
     if(nArg == 5):
         slcIdx = int(sys.argv[4])
+    else :
+        slcIdx = 0
 
     startTime = time.time()
     print("{} \n".format(sys.argv),flush=True)
@@ -175,8 +178,8 @@ def main():
     if(plotType == "log-lin"):
         yV = np.log(yV)
         # Slice and only keep what 
-        if(nArg == 5):
-            if(slcIdx < 0):
+        if(nArg == 5 or nArg == 3):
+            if(slcIdx <= 0):
                 xfit = xV[slcIdx:]
                 yfit = yV[slcIdx:]
             elif(slcIdx > 0):
@@ -187,6 +190,24 @@ def main():
         xfit= np.asarray([x for x in np.arange(0,n,n/100.0)])
         yfit= fit[0]*xfit + fit[1]
         ax.plot(xfit, yfit, label="Fit - y={:.3f}x+{:.3f}".format(fit[0],fit[1]))
+    elif(plotType == "lin-lin"):
+        yV = yV
+        # Slice and only keep what 
+        if(nArg == 5 or nArg == 3):
+            if(slcIdx <= 0):
+                xfit = xV[slcIdx:]
+                yfit = yV[slcIdx:]
+            elif(slcIdx > 0):
+                xfit = xV[:slcIdx]
+                yfit = yV[:slcIdx]
+        # Reuse xfit, and yfit
+        fit = np.polyfit(xfit,yfit,deg=1)
+        xfit= np.asarray([x for x in np.arange(0,n,n/100.0)])
+        yfit= fit[0]*xfit + fit[1]
+        ax.plot(xfit, yfit, label="Fit - y={:.3f}x+{:.3f}".format(fit[0],fit[1]))
+        
+    else:
+        exit_with_error("ERROR!!! plotType = {} is invalid\n".format(plotType))
     ax.plot(xV, yV, label=ylabel)
     ax.set_title("Time vs. ln({})".format(ylabel))
     ax.set_xlabel("Time")
