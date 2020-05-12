@@ -10,7 +10,7 @@ This is a really ignorant attempt at understanding covid19.  I have no experienc
 
 ## Usage:
 This repo does several things.
-1. It plots and fits the Itallian covid-19 data from the [national government](https://github.com/pcm-dpc/COVID-19.git). E.g. (fitting the last 10 points) : 
+1. It plots and fits the Itallian covid-19 data from the [national government](https://github.com/pcm-dpc/COVID-19.git). E.g.
 
 ```
 python3 ./src/plot_italy_data.py option_to_plot italy_data_file [log-lin] [index]
@@ -35,21 +35,37 @@ python3 ./src/plot_italy_data.py option_to_plot italy_data_file [log-lin] [index
 ```
 
 
-2. It plots the country cases (see [John Hopkins' data](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series)) as a function of time. E.g. (fitting the last 10 points) : 
+2. It plots the country cases (see [John Hopkins' data](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series)) as a function of time. E.g.
 
-    `python src/plot_jhu_data.py us log-lin -10`
+```
+python3 ./src/plot_jhu_data.py country log-lin slice_index
+      country   : See time_series_covid19_confirmed_global.csv
+                  for coutries to plot options
+      log-lin   : required, plot y axis in natural log, if fit is
+                  straight line then experiencing exponential growth.
+                  My hope is to someday implement other to be fit types
+                  (e.g. lin-lin)
+      slice_index : required, for fitting, e.g.
+                  if = -10, it will fit the last 10 points
+                  if = 10, it will fit the first 10 points
+```
 
 3. It plots several countries' death data (see [John Hopkins' data](https://github.com/CSSEGISandData/COVID-19/tree/master/csse_covid_19_data/csse_covid_19_time_series)) showing 1 day and 3 day doubling times. Motivated by [NYT plot](https://www.nytimes.com/interactive/2020/03/21/upshot/coronavirus-deaths-by-country.html).  E.g.
 
-    `python src/plot_country_deaths.py [quarantine]`
+```
+python src/plot_country_deaths.py 
+```
 
 4. I created a fun little toy program that emulates the type of plotting / simulations done in [Simulating an Epidemic - YouTube](https://www.youtube.com/watch?v=gxAaO2rsdIs). 
 
-    `python simulating_epidemic_youtube.py`
+```
+python3 ./src/osu_ide_replication_attempt.py [quarantine]
+   [quarantine] : optional, puts infected in quarantine symptoms present
 
-    To generate the movie : 
 
-    `ffmpeg -framerate 4 -pattern_type glob -i 'output/*.png' -c:v libx264 out.mp4`
+   After running, create a movie via :
+       ffmpeg -framerate 4 -pattern_type glob -i 'tmp/*.png' -c:v libx264 out.mp4
+```
 
 <!-- 5. Mention Runge-Kutta integration of DE's from OSU/IDE paper -->
 

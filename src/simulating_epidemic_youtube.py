@@ -39,10 +39,10 @@ def print_help(ExitCode):
     """
     sys.stderr.write(
         "python3 ./src/osu_ide_replication_attempt.py [quarantine]\n"
-        "   [quarantine] : optional, puts infected in quarantine 2 days after symptoms  \n"
+        "   [quarantine] : optional, puts infected in quarantine symptoms present\n"
         "      \n"
         "      \n"
-        "   After running, create a movie via : "
+        "   After running, create a movie via : \n"
         "       ffmpeg -framerate 4 -pattern_type glob -i 'tmp/*.png' -c:v libx264 out.mp4\n"
         "      \n"
         "   To Run: \n"

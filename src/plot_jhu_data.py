@@ -35,11 +35,16 @@ def print_help(ExitCode):
     FUTURE:
     """
     sys.stderr.write(
-        "python3 ./src/plot_jhu_data.py country [log-lin] [index]\n"
+        "python3 ./src/plot_jhu_data.py country log-lin slice_index\n"
         "      country   : See time_series_covid19_confirmed_global.csv\n"
         "                  for coutries to plot options\n"
-        "      \n"
-        "      \n"
+        "      log-lin   : required, plot y axis in natural log, if fit is \n"
+        "                  straight line then experiencing exponential growth.\n"
+        "                  My hope is to someday implement other to be fit types \n"
+        "                  (e.g. lin-lin)\n"
+        "      slice_index : required, for fitting, e.g. \n"
+        "                  if = -10, it will fit the last 10 points\n"
+        "                  if = 10, it will fit the first 10 points\n"
         "      \n"
         "   To Run: \n"
         "   source ~/.local/virtualenvs/python3.7/bin/activate\n")
