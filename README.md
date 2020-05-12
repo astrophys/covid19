@@ -56,7 +56,17 @@ python3 ./src/plot_jhu_data.py country log-lin slice_index
 python src/plot_country_deaths.py 
 ```
 
-4. I created a fun little toy program that emulates the type of plotting / simulations done in [Simulating an Epidemic - YouTube](https://www.youtube.com/watch?v=gxAaO2rsdIs). 
+4. An Ising inspired model of infection. It is a 1D model. This was my first attempt at modeling infectious spread. With an infectious agent, it can infect any other agent in the 1D model. This non-local behavior is obviously realistic, yet is fun anyways.
+
+```
+python3 ./src/simulation_1D.py R0 inc_time infect_time
+      R0          : How many people on average person infects
+      inc_time    : Incubation time (days)
+      infect_time : Time after infection person becomes infectious
+```
+
+
+5. A fun little toy program that emulates the type of plotting / simulations done in [Simulating an Epidemic - YouTube](https://www.youtube.com/watch?v=gxAaO2rsdIs). 
 
 ```
 python3 ./src/simulating_agent_model_2D.py [quarantine]

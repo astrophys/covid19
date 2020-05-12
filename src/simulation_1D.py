@@ -35,7 +35,7 @@ def print_help(ExitCode):
     FUTURE:
     """
     sys.stderr.write(
-        "python3 ./src/simulatoin.py R0 inc_time infect_time \n"
+        "python3 ./src/simulation_1D.py R0 inc_time infect_time \n"
         "      R0          : How many people on average person infects\n"
         "      inc_time    : Incubation time (days)\n"
         "      infect_time : Time after infection person becomes infectious \n"
