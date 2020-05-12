@@ -289,20 +289,32 @@ def main():
     print("{} \n".format(sys.argv),flush=True)
     print("   Start Time : {}".format(time.strftime("%a, %d %b %Y %H:%M:%S ",
                                        time.localtime())),flush=True)
+    ### Parameters to Change
     N     = 200             # Number of Agents
-    nDays = 100             # number of days in simulation
+    nDays = 200             # number of days in simulation
     dt    = 0.25            # number of steps in a day, total steps = nDays / dt
     nStep = int(nDays / dt)
     infectTime = 14 / dt    # Infection time in units of steps
     asymptomaticTime = 5 / dt    # Infection time in units of steps
-    prob  = 0.5             # Probability of infecting agent within infectDist
+    prob  = 0.125           # Probability of infecting agent within infectDist
     infectDist = 0.05       # Distance person must be within to get infected
-    critMass = 1            # Number of people before instituting a quarantine
+    critMass = 10           # Number of people before instituting a quarantine
+    nDayAsymptAndInfec = 2  # Number days asymptomatic AND infectious
     agentL= []
     nSuscL = []             # Number of susceptible per step
     nInfL = []              # Number of infected per step
     nRmL = []               # Number of removed per step
     startQuarantine = False
+    print("Parameters : \n"
+          "     N = {}\n"
+          "     prob = {}\n"
+          "     nDays = {}\n"
+          "     nStep= {}\n"
+          "     infectDist= {}\n"
+          "     critMass= {}\n"
+          "     nDayAsymptAndInfec = {}\n"
+          "     quarantine= {}\n".format(N,prob,nDays,nStep,infectDist,critMass,
+          nDayAsymptAndInfec,quarantine))
 
     # Initialize agents
     for n in range(N):
@@ -351,8 +363,9 @@ def main():
                 if(len(ixL) == critMass):      # Critical mass to quarantine
                     startQuarantine = True
                 # Quarentine after 2 days of infeciousness
-                if((agent.infected == True and step - agent.start - asymptomaticTime >=1/dt)
-                   and startQuarantine == True
+                if((agent.infected == True and
+                    step - agent.start - asymptomaticTime >= nDayAsymptAndInfec/dt) and
+                    startQuarantine == True
                 ):
                     agent.quarantine = True
                     agent.vL[0] = 0
