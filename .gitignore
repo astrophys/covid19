@@ -5,3 +5,4 @@ data
 out*
 tmp
 .DS_Store
+*.png

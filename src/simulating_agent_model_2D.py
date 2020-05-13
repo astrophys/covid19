@@ -291,19 +291,19 @@ def main():
                                        time.localtime())),flush=True)
     ### Parameters to Change
     N     = 200             # Number of Agents
-    nDays = 200             # number of days in simulation
+    nDays = 100             # number of days in simulation
     dt    = 0.25            # number of steps in a day, total steps = nDays / dt
     nStep = int(nDays / dt)
     infectTime = 14 / dt    # Infection time in units of steps
     asymptomaticTime = 5 / dt    # Infection time in units of steps
     prob  = 0.125           # Probability of infecting agent within infectDist
     infectDist = 0.05       # Distance person must be within to get infected
-    critMass = 10           # Number of people before instituting a quarantine
+    critMass = 20           # Number of people before instituting a quarantine
     nDayAsymptAndInfec = 2  # Number days asymptomatic AND infectious
-    agentL= []
+    agentL = []
     nSuscL = []             # Number of susceptible per step
-    nInfL = []              # Number of infected per step
-    nRmL = []               # Number of removed per step
+    nInfL  = []             # Number of infected per step
+    nRmL  = []              # Number of removed per step
     startQuarantine = False
     print("Parameters : \n"
           "     N = {}\n"
@@ -428,7 +428,8 @@ def main():
             R = np.mean(RL)
         else:
             R = 0
-        ax.set_title("{:<.2f} days, R = {:<.2f}".format(step*dt,R))
+        ax.set_title("Critical Fraction : {:<.1f}%\n{:<.2f} days, R = {:<.2f}".format(critMass/N*
+100,step*dt,R))
         #plt.show()
         plt.savefig("tmp/{:04d}.png".format(step))
         plt.close('all')
@@ -447,7 +448,9 @@ def main():
     ax.legend(loc=1)
     ax.xaxis.set_ticks([d*1.0/dt for d in range(nDays) if(d%10 == 0)])
     ax.set_xticklabels([d for d in range(nDays) if(d%10 == 0)])
-    ax.set_title("Susceptible-Infected-Removed vs. Time".format(step*dt))
+    ax.set_title("Critical Fraction : {:<.1f}%\nSusceptible-Infected-Removed vs. Time".format(critMass/N*100,step*dt))
+    ax.set_xlabel("Time (days)")
+    ax.set_ylabel("Number of Agents")
     plt.savefig("tmp/SIR_vs_time.png")
     plt.close('all')
 
